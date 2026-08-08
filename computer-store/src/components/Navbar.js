@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 
@@ -19,47 +20,62 @@ export default function Navbar() {
   const { totalItems } = useCart();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-100 bg-white shadow-sm">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+    <header className="sticky top-0 z-50 bg-gray-100 px-6 py-2">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
 
         {/* Logo */}
-        <Link href="/" className="text-xl font-extrabold text-blue-600 tracking-tight">
-          💻 Computer Store
+        <Link href="/" className="shrink-0">
+          <Image
+            src="/images/logos/nav-logo.png"
+            alt="Computer Store"
+            width={120}
+            height={32}
+            className="object-contain"
+          />
         </Link>
 
-        {/* Desktop links */}
-        <div className="hidden items-center gap-1 md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                pathname === link.href
-                  ? "bg-blue-50 text-blue-600"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
+        {/* ── Desktop pill nav ── */}
+        <nav className="hidden md:flex items-center bg-white rounded-full shadow-sm px-2 py-1 gap-1">
+          {navLinks.map((link) => {
+            const active = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`relative flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold transition-colors ${
+                  active
+                    ? "bg-green-300 text-gray-900"
+                    : "text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                {link.label}
+                {/* Badge — shows cart count on Laptops link as demo, or active indicator */}
+                {active && totalItems > 0 && link.href === "/laptops" && (
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-xs font-bold text-white">
+                    {totalItems}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
 
-        {/* Right side actions */}
-        <div className="hidden items-center gap-3 md:flex">
+        {/* ── Cart button ── */}
+        <div className="hidden md:flex items-center">
           <Link
             href="/cart"
-            className="relative flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+            className="relative flex items-center gap-2 rounded-full border border-white/30 bg-white/20 px-4 py-1.5 text-sm font-bold text-gray-800 shadow-sm backdrop-blur-md hover:bg-white/40 transition-all"
           >
             🛒 Cart
             {totalItems > 0 && (
-              <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-xs font-bold text-white">
                 {totalItems}
               </span>
             )}
           </Link>
         </div>
 
-        {/* Mobile hamburger */}
+        {/* ── Mobile hamburger ── */}
         <button
           className="flex flex-col gap-1.5 md:hidden"
           onClick={() => setMenuOpen((prev) => !prev)}
@@ -69,35 +85,39 @@ export default function Navbar() {
           <span className={`block h-0.5 w-6 bg-gray-700 transition-all ${menuOpen ? "opacity-0" : ""}`} />
           <span className={`block h-0.5 w-6 bg-gray-700 transition-all ${menuOpen ? "-translate-y-2 -rotate-45" : ""}`} />
         </button>
-      </nav>
+      </div>
 
-      {/* Mobile menu */}
+      {/* ── Mobile menu ── */}
       {menuOpen && (
-        <div className="border-t border-gray-100 bg-white px-6 pb-4 md:hidden">
-          <div className="flex flex-col gap-1 pt-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMenuOpen(false)}
-                className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
-                  pathname === link.href
-                    ? "bg-blue-50 text-blue-600"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <div className="mt-2 flex gap-3">
-              <Link
-                href="/cart"
-                onClick={() => setMenuOpen(false)}
-                className="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-blue-700"
-              >
-                🛒 Cart
-              </Link>
-            </div>
+        <div className="mt-2 rounded-2xl bg-white px-4 pb-4 pt-2 shadow-md md:hidden">
+          <div className="flex flex-col gap-1">
+            {navLinks.map((link) => {
+              const active = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className={`flex items-center justify-between rounded-full px-5 py-2.5 text-sm font-bold transition-colors ${
+                    active ? "bg-green-300 text-gray-900" : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+            <Link
+              href="/cart"
+              onClick={() => setMenuOpen(false)}
+              className="mt-2 flex items-center justify-between rounded-full bg-gray-900 px-5 py-2.5 text-sm font-bold text-white"
+            >
+              🛒 Cart
+              {totalItems > 0 && (
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-green-300 text-xs font-bold text-gray-900">
+                  {totalItems}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
       )}
