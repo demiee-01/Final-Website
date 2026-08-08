@@ -60,8 +60,20 @@ export default function Navbar() {
           })}
         </nav>
 
-        {/* ── Cart button ── */}
-        <div className="hidden md:flex items-center">
+        {/* ── Right side: Sign In, Sign Up, Cart ── */}
+        <div className="hidden md:flex items-center gap-2">
+          <Link
+            href="/signin"
+            className="rounded-full px-4 py-1.5 text-sm font-bold text-gray-700 hover:bg-white transition-colors"
+          >
+            Sign In
+          </Link>
+          <Link
+            href="/signup"
+            className="rounded-full bg-gray-900 px-4 py-1.5 text-sm font-bold text-white hover:bg-gray-700 transition-colors"
+          >
+            Sign Up
+          </Link>
           <Link
             href="/cart"
             className="relative flex items-center gap-2 rounded-full border border-white/30 bg-white/20 px-4 py-1.5 text-sm font-bold text-gray-800 shadow-sm backdrop-blur-md hover:bg-white/40 transition-all"
@@ -118,6 +130,14 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <Link href="/signin" onClick={() => setMenuOpen(false)} className="rounded-full border border-gray-200 py-2.5 text-center text-sm font-bold text-gray-700 hover:bg-gray-100">
+                Sign In
+              </Link>
+              <Link href="/signup" onClick={() => setMenuOpen(false)} className="rounded-full bg-gray-900 py-2.5 text-center text-sm font-bold text-white hover:bg-gray-700">
+                Sign Up
+              </Link>
+            </div>
           </div>
         </div>
       )}
