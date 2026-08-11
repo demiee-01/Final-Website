@@ -1,18 +1,38 @@
 "use client";
 
+import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
+import AuthGuard from "@/components/AuthGuard";
 
 export default function Footer() {
+  const [sent, setSent] = useState(false);
+  const [email, setEmail] = useState("");
+  const [showAuthGuard, setShowAuthGuard] = useState(false);
+  const { isSignedIn } = useAuth();
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!isSignedIn) { setShowAuthGuard(true); return; }
+    setSent(true);
+    setEmail("");
+    setTimeout(() => setSent(false), 3000);
+  }
+
   return (
-    <footer className="bg-gray-950 text-gray-400">
+    <footer id="footer" className="bg-gray-950 text-gray-400">
+      {showAuthGuard && <AuthGuard onClose={() => setShowAuthGuard(false)} />}
       <div className="mx-auto max-w-7xl px-6 py-14">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
 
           {/* Brand */}
           <div>
-            <p className="text-lg font-extrabold text-white">💻 Computer Store</p>
+            <Link href="/">
+              <Image src="/images/logos/nav-logo.png" alt="Computer Store" width={160} height={44} className="object-contain" />
+            </Link>
             <p className="mt-3 text-sm leading-relaxed">
-              Your one-stop shop for premium laptops and computing gear. We bring you the latest tech at the best prices.
+              Your one-stop shop for premium laptops and computing gear.
             </p>
             {/* Social icons */}
             <div className="mt-5 flex gap-3">
@@ -33,7 +53,7 @@ export default function Footer() {
                 { label: "Laptops", href: "/laptops" },
                 { label: "Brands", href: "/brands" },
                 { label: "About", href: "/about" },
-                { label: "Contact", href: "/contact" },
+                { label: "Contact", href: "#footer" },
               ].map((l) => (
                 <li key={l.label}>
                   <Link href={l.href} className="hover:text-white transition-colors">{l.label}</Link>
@@ -52,32 +72,52 @@ export default function Footer() {
                 { label: "Sign Up", href: "#" },
                 { label: "Shipping Info", href: "#" },
                 { label: "Returns", href: "#" },
-                { label: "Admin", href: "/admin" },
               ].map((l) => (
                 <li key={l.label}>
                   <Link href={l.href} className="hover:text-white transition-colors">{l.label}</Link>
                 </li>
               ))}
+              {/* Admin — small and subtle */}
+              <li className="pt-2 border-t border-gray-800">
+                <Link href="/admin" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">
+                  Admin ↗
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Newsletter */}
+          {/* Contact Admin / Newsletter */}
           <div>
-            <p className="text-sm font-bold text-white">Newsletter</p>
-            <p className="mt-3 text-sm leading-relaxed">
-              Subscribe for the latest deals and product launches.
+            <p className="text-sm font-bold text-white">Contact Admin</p>
+            <p className="mt-2 text-xs leading-relaxed text-gray-500">
+              Send a message to the store admin.
             </p>
-            <form className="mt-4 flex gap-2" onSubmit={(e) => e.preventDefault()}>
+
+            <form onSubmit={handleSubmit} className="mt-4 space-y-2">
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Your email"
-                className="flex-1 rounded-lg border border-gray-700 bg-gray-900 px-4 py-2 text-sm text-white placeholder-gray-500 outline-none focus:border-blue-500 transition"
+                required
+                className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-xs text-white placeholder-gray-500 outline-none focus:border-blue-500 transition"
               />
+              <input
+                type="text"
+                placeholder="Message"
+                className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-xs text-white placeholder-gray-500 outline-none focus:border-blue-500 transition"
+              />
+
+              {/* Animated send button */}
               <button
                 type="submit"
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                className={`w-full rounded-lg px-4 py-2 text-xs font-semibold transition-all duration-300 ${
+                  sent
+                    ? "bg-green-500 text-white scale-95"
+                    : "bg-blue-600 text-white hover:bg-blue-500 active:scale-95"
+                }`}
               >
-                Subscribe
+                {sent ? "✓ Sent!" : "Send Message"}
               </button>
             </form>
           </div>

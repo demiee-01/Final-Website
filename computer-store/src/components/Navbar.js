@@ -1,23 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import { SignInButton, SignUpButton, UserButton, SignOutButton } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
 
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Laptops", href: "/laptops" },
   { label: "Brands", href: "/brands" },
   { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
+  { label: "Contact", href: "#footer" },
 ];
 
 export default function Navbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const { totalItems } = useCart();
+  const { isSignedIn } = useAuth();
+  const [footerVisible, setFooterVisible] = useState(false);
+
+  /* Detect when footer is visible — highlights Contact pill */
+  useEffect(() => {
+    function onScroll() {
+      const footer = document.getElementById("footer");
+      if (!footer) return;
+      const rect = footer.getBoundingClientRect();
+      setFooterVisible(rect.top < window.innerHeight - 50);
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 bg-gray-100 px-6 py-2">
@@ -37,11 +53,24 @@ export default function Navbar() {
         {/* ── Desktop pill nav ── */}
         <nav className="hidden md:flex items-center bg-white rounded-full shadow-sm px-2 py-1 gap-1">
           {navLinks.map((link) => {
-            const active = pathname === link.href;
+            const active =
+              link.href === "#footer"
+                ? footerVisible
+                : !footerVisible && pathname === link.href;
             return (
               <Link
                 key={link.href}
                 href={link.href}
+                onClick={() => {
+                  setMenuOpen(false);
+                  if (link.href === "#footer") {
+                    setTimeout(() => {
+                      document.getElementById("footer")?.scrollIntoView({ behavior: "smooth" });
+                    }, 50);
+                  } else {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }
+                }}
                 className={`relative flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold transition-colors ${
                   active
                     ? "bg-green-300 text-gray-900"
@@ -62,18 +91,23 @@ export default function Navbar() {
 
         {/* ── Right side: Sign In, Sign Up, Cart ── */}
         <div className="hidden md:flex items-center gap-2">
-          <Link
-            href="/signin"
-            className="rounded-full px-4 py-1.5 text-sm font-bold text-gray-700 hover:bg-white transition-colors"
-          >
-            Sign In
-          </Link>
-          <Link
-            href="/signup"
-            className="rounded-full bg-gray-900 px-4 py-1.5 text-sm font-bold text-white hover:bg-gray-700 transition-colors"
-          >
-            Sign Up
-          </Link>
+          {/* Sign In / Sign Up / UserButton */}
+          {isSignedIn ? (
+            <UserButton afterSignOutUrl="/" />
+          ) : (
+            <>
+              <SignInButton mode="modal">
+                <button className="rounded-full px-4 py-1.5 text-sm font-bold text-gray-700 hover:bg-white transition-colors">
+                  Sign In
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button className="rounded-full bg-gray-900 px-4 py-1.5 text-sm font-bold text-white hover:bg-gray-700 transition-colors">
+                  Sign Up
+                </button>
+              </SignUpButton>
+            </>
+          )}
           <Link
             href="/cart"
             className="relative flex items-center gap-2 rounded-full border border-white/30 bg-white/20 px-4 py-1.5 text-sm font-bold text-gray-800 shadow-sm backdrop-blur-md hover:bg-white/40 transition-all"
@@ -131,12 +165,24 @@ export default function Navbar() {
               )}
             </Link>
             <div className="mt-2 grid grid-cols-2 gap-2">
-              <Link href="/signin" onClick={() => setMenuOpen(false)} className="rounded-full border border-gray-200 py-2.5 text-center text-sm font-bold text-gray-700 hover:bg-gray-100">
-                Sign In
-              </Link>
-              <Link href="/signup" onClick={() => setMenuOpen(false)} className="rounded-full bg-gray-900 py-2.5 text-center text-sm font-bold text-white hover:bg-gray-700">
-                Sign Up
-              </Link>
+              {isSignedIn ? (
+                <div className="col-span-2 flex justify-center">
+                  <UserButton afterSignOutUrl="/" />
+                </div>
+              ) : (
+                <>
+                  <SignInButton mode="modal">
+                    <button className="rounded-full border border-gray-200 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-100">
+                      Sign In
+                    </button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <button className="rounded-full bg-gray-900 py-2.5 text-sm font-bold text-white hover:bg-gray-700">
+                      Sign Up
+                    </button>
+                  </SignUpButton>
+                </>
+              )}
             </div>
           </div>
         </div>

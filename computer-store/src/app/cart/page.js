@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import AuthGuard from "@/components/AuthGuard";
+import { useAuth } from "@clerk/nextjs";
 
 function CartCard({ item, selected, onToggle, updateQty, removeFromCart }) {
   const [expanded, setExpanded] = useState(false);
@@ -106,24 +108,32 @@ function CartCard({ item, selected, onToggle, updateQty, removeFromCart }) {
 
 function AddLaptopCard({ laptop }) {
   const [added, setAdded] = useState(false);
+  const [showAuthGuard, setShowAuthGuard] = useState(false);
   const { addToCart } = useCart();
+  const { isSignedIn } = useAuth();
   const router = useRouter();
 
   function handleAdd() {
+    if (!isSignedIn) { setShowAuthGuard(true); return; }
     addToCart(laptop);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   }
 
   function handleBuyNow() {
+    if (!isSignedIn) { setShowAuthGuard(true); return; }
     addToCart(laptop);
     router.push("/cart");
   }
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow">
-      <div className="relative h-48 w-full bg-gray-50">
-        <Image src={laptop.image} alt={laptop.name} fill className="object-contain p-4" />
+    <>
+      {showAuthGuard && <AuthGuard onClose={() => setShowAuthGuard(false)} />}
+      <article className="flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex h-64 w-full items-center justify-center bg-white p-4">
+        <div className="relative h-52 w-52">
+          <Image src={laptop.image} alt={laptop.name} fill className="object-contain" />
+        </div>
       </div>
       <div className="flex flex-1 flex-col p-5">
         <span className="text-xs font-semibold uppercase tracking-wide text-blue-600">{laptop.brand}</span>
@@ -163,6 +173,7 @@ function AddLaptopCard({ laptop }) {
         </div>
       </div>
     </article>
+    </>
   );
 }
 
