@@ -19,6 +19,10 @@ import AuthGuard from "@/components/AuthGuard";
 import { useAuth } from "@clerk/nextjs";
 import SpecSheet from "@/components/SpecSheet";
 
+// Disable static optimization for this page
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 /* Filter option constants */
 const RAM_OPTIONS = ["Any", "8GB", "16GB", "32GB"];
 const CPU_OPTIONS = ["Any", "Intel", "AMD"];
