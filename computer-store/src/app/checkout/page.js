@@ -1,13 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { useUser } from "@clerk/nextjs";
 
 const inputClass = "w-full rounded-xl border border-gray-200 p-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition";
 
 export default function CheckoutPage() {
-  const { cartItems } = useCart();
+  const { cartItems, clearCart } = useCart();
+  const { user, isLoaded } = useUser();
+  const router = useRouter();
 
   const [form, setForm] = useState({
     firstName: "",
@@ -26,6 +30,20 @@ export default function CheckoutPage() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState("");
+
+  // Pre-fill user info from Clerk
+  useEffect(() => {
+    if (user) {
+      setForm(prev => ({
+        ...prev,
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.primaryEmailAddress?.emailAddress || "",
+      }));
+    }
+  }, [user]);
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
@@ -35,10 +53,68 @@ export default function CheckoutPage() {
     }));
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    if (!form.agreeTerms) return alert("Please agree to the terms and conditions.");
-    setSubmitted(true);
+    
+    if (!form.agreeTerms) {
+      alert("Please agree to the terms and conditions.");
+      return;
+    }
+
+    if (!isLoaded || !user) {
+      alert("Please sign in to place an order");
+      router.push("/sign-in?redirect=/checkout");
+      return;
+    }
+
+    setIsProcessing(true);
+    setError("");
+
+    try {
+      const orderData = {
+        customerName: `${form.firstName} ${form.lastName}`,
+        customerEmail: form.email,
+        customerPhone: form.phone,
+        shippingAddress: {
+          address: form.address,
+          city: form.city,
+          state: form.state,
+          zipCode: form.zip,
+          country: form.country,
+        },
+        paymentMethod: form.payment === "card" ? "credit_card" : "cash_on_delivery",
+        items: cartItems.map(item => ({
+          laptopId: item.id,
+          name: item.name,
+          brand: item.brand,
+          price: item.price,
+          quantity: item.qty,
+          image: item.image,
+        })),
+        totalAmount: total,
+      };
+
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to place order");
+      }
+
+      // Clear cart and show success
+      clearCart();
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Order error:", err);
+      setError(err.message || "Failed to place order. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
   }
 
   /* Selected items total from cart */
@@ -106,22 +182,22 @@ export default function CheckoutPage() {
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">First Name *</label>
-                  <input name="firstName" value={form.firstName} onChange={handleChange} placeholder="John" className={inputClass} required />
+                  <input name="firstName" value={form.firstName} onChange={handleChange} placeholder="Your first name" className={inputClass} required />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">Last Name *</label>
-                  <input name="lastName" value={form.lastName} onChange={handleChange} placeholder="Doe" className={inputClass} required />
+                  <input name="lastName" value={form.lastName} onChange={handleChange} placeholder="Your last name" className={inputClass} required />
                 </div>
               </div>
 
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">Email *</label>
-                  <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="john@example.com" className={inputClass} required />
+                  <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="hi@example.com" className={inputClass} required />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">Phone</label>
-                  <input name="phone" value={form.phone} onChange={handleChange} placeholder="+1 234 567 890" className={inputClass} />
+                  <input name="phone" value={form.phone} onChange={handleChange} placeholder="+855 xxxxxx" className={inputClass} />
                 </div>
               </div>
             </div>
@@ -138,7 +214,7 @@ export default function CheckoutPage() {
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">City *</label>
-                  <input name="city" value={form.city} onChange={handleChange} placeholder="New York" className={inputClass} required />
+                  <input name="city" value={form.city} onChange={handleChange} placeholder="Phnom Penh" className={inputClass} required />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">State / Province</label>
@@ -149,11 +225,11 @@ export default function CheckoutPage() {
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">ZIP / Postal Code</label>
-                  <input name="zip" value={form.zip} onChange={handleChange} placeholder="10001" className={inputClass} />
+                  <input name="zip" value={form.zip} onChange={handleChange} placeholder="101010" className={inputClass} />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">Country *</label>
-                  <input name="country" value={form.country} onChange={handleChange} placeholder="United States" className={inputClass} required />
+                  <input name="country" value={form.country} onChange={handleChange} placeholder="Cambodia" className={inputClass} required />
                 </div>
               </div>
             </div>
@@ -246,10 +322,17 @@ export default function CheckoutPage() {
 
             <button
               type="submit"
-              className="mt-6 w-full rounded-xl bg-blue-600 py-3 font-bold text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+              disabled={isProcessing || cartItems.length === 0}
+              className="mt-6 w-full rounded-xl bg-blue-600 py-3 font-bold text-white hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Place Order
+              {isProcessing ? "Processing..." : "Place Order"}
             </button>
+
+            {error && (
+              <div className="mt-3 rounded-lg bg-red-50 border border-red-200 p-3">
+                <p className="text-sm text-red-800">{error}</p>
+              </div>
+            )}
 
             <Link href="/cart" className="mt-3 block w-full rounded-xl border border-gray-200 py-3 text-center text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
               ← Back to Cart
