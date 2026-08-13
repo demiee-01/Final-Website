@@ -17,6 +17,7 @@ import { useCart } from "@/context/CartContext";
 import ScrollReveal from "@/components/ScrollReveal";
 import AuthGuard from "@/components/AuthGuard";
 import { useAuth } from "@clerk/nextjs";
+import SpecSheet from "@/components/SpecSheet";
 
 /* Filter option constants */
 const RAM_OPTIONS = ["Any", "8GB", "16GB", "32GB"];
@@ -74,7 +75,7 @@ export default function LaptopsPage() {
   /* Filter state — reads ?q= from URL for search */
   const searchParams = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("q") || "");
-  const [brandFilter, setBrandFilter] = useState("All");
+  const [brandFilter, setBrandFilter] = useState(searchParams.get("brand") || "All");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [modelFilter, setModelFilter] = useState("Any");
   const [ramFilter, setRamFilter] = useState("Any");
@@ -110,7 +111,7 @@ export default function LaptopsPage() {
     setTimeout(() => setAdded(null), 1500);
   }
 
-  /* Buy now — requires auth */
+  /* Buy now — requires auth, redirects to cart */
   function handleBuyNow(laptop) {
     if (!isSignedIn) { setShowAuthGuard(true); return; }
     addToCart(laptop);
@@ -146,11 +147,11 @@ export default function LaptopsPage() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-gray-50 px-6 py-10">
+      <main className="min-h-screen bg-gray-50 px-4 sm:px-6 py-10">
         <div className="mx-auto max-w-7xl flex gap-8">
           <div className="hidden w-60 shrink-0 lg:block"><div className="h-96 animate-pulse rounded-2xl bg-gray-200" /></div>
-          <div className="flex-1 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[1,2,3,4,5].map(n => <div key={n} className="h-80 animate-pulse rounded-2xl bg-gray-200" />)}
+          <div className="flex-1 grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-3">
+            {[1,2,3,4,5].map(n => <div key={n} className="h-64 sm:h-80 animate-pulse rounded-2xl bg-gray-200" />)}
           </div>
         </div>
       </main>
@@ -159,16 +160,16 @@ export default function LaptopsPage() {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-gray-50 px-6 py-10">
+      <main className="min-h-screen bg-gray-50 px-4 sm:px-6 py-10">
         <p className="text-red-600">{error}</p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 px-6 py-10">
+    <main className="min-h-screen bg-gray-50 px-4 sm:px-6 py-10">
       {showAuthGuard && <AuthGuard onClose={() => setShowAuthGuard(false)} />}
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-[1600px]">
         <h1 className="text-4xl font-bold text-gray-900">Laptops</h1>
         <p className="mt-2 text-gray-500">{filtered.length} of {laptops.length} laptops</p>
 
@@ -184,26 +185,13 @@ export default function LaptopsPage() {
           <PillGroup options={CATEGORIES} value={categoryFilter} onChange={setCategoryFilter} />
         </div>
 
-        <div className="mt-8 flex gap-8">
+        <div className="mt-8 flex gap-5">
 
           {/* Sidebar — hidden on mobile */}
-          <aside className="hidden w-60 shrink-0 lg:block">
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-6">
+          <aside className="hidden w-52 shrink-0 lg:block">
+            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm space-y-5">
               {/* Brand */}
               <RadioGroup label="Brand" options={BRANDS} value={brandFilter} onChange={setBrandFilter} />
-              <hr className="border-gray-100" />
-              {/* Model */}
-              <div>
-                <p className="text-sm font-bold text-gray-900">Model</p>
-                <div className="mt-3 space-y-2.5">
-                  {modelOptions.map((opt) => (
-                    <label key={opt.id} className="flex cursor-pointer items-center gap-2.5 text-sm text-gray-600 hover:text-gray-900">
-                      <input type="radio" name="model" value={opt.name} checked={modelFilter === opt.name} onChange={() => setModelFilter(opt.name)} className="accent-blue-600 h-4 w-4" />
-                      <span className="truncate">{opt.name}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
               <hr className="border-gray-100" />
               {/* Max Price slider */}
               <div>
@@ -219,7 +207,7 @@ export default function LaptopsPage() {
               <RadioGroup label="CPU" options={CPU_OPTIONS} value={cpuFilter} onChange={setCpuFilter} />
               <hr className="border-gray-100" />
               {/* Clear all filters */}
-              <button onClick={clearFilters} className="w-full rounded-xl border border-gray-200 py-2.5 text-sm font-semibold text-gray-500 hover:bg-gray-50 transition-colors">Clear Filters</button>
+              <button onClick={clearFilters} className="w-full rounded-xl border border-gray-200 py-2 text-sm font-semibold text-gray-500 hover:bg-gray-50 transition-colors">Clear Filters</button>
             </div>
           </aside>
 
@@ -232,42 +220,32 @@ export default function LaptopsPage() {
                 <button onClick={clearFilters} className="mt-4 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Clear Filters</button>
               </div>
             ) : (
-              <section className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              <section className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {filtered.map((laptop, index) => (
                   <ScrollReveal key={laptop.id} delay={(index % 3) + 1}>
-                  <article className="flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow">
+                  <article className="flex flex-col overflow-hidden rounded-xl sm:rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow">
                     {/* Image */}
-                    <div className="flex h-64 w-full items-center justify-center bg-white p-4">
-                      <div className="relative h-52 w-52">
-                        <Image src={laptop.image} alt={laptop.name} fill className="object-contain" />
-                      </div>
+                    <div className="flex h-32 sm:h-64 w-full items-center justify-center bg-white p-2 sm:p-4">
+                      <img 
+                        src={laptop.image} 
+                        alt={laptop.name} 
+                        className="h-24 sm:h-52 w-24 sm:w-52 object-contain"
+                      />
                     </div>
                     {/* Info */}
-                    <div className="flex flex-1 flex-col p-5">
-                      <span className="text-xs font-semibold uppercase tracking-wide text-blue-600">{laptop.brand}</span>
-                      <h2 className="mt-1 text-lg font-bold text-gray-900">{laptop.name}</h2>
-                      {/* Spec rows */}
-                      <div className="mt-3 space-y-2">
-                        {[
-                          { label: "CPU", value: laptop.cpu },
-                          { label: "GPU", value: laptop.gpu },
-                          { label: "RAM", value: laptop.ram },
-                          { label: "Storage", value: laptop.storage },
-                        ].map((r) => r.value ? (
-                          <div key={r.label} className="flex items-center justify-between rounded-xl bg-blue-50 px-4 py-3 text-sm">
-                            <span className="font-semibold text-blue-600">{r.label}</span>
-                            <span className="font-medium text-gray-800">{r.value}</span>
-                          </div>
-                        ) : null)}
-                      </div>
+                    <div className="flex flex-1 flex-col p-2 sm:p-5">
+                      <span className="text-[9px] sm:text-xs font-semibold uppercase tracking-wide text-blue-600">{laptop.brand}</span>
+                      <h2 className="mt-1 text-xs sm:text-lg font-bold text-gray-900 line-clamp-2 min-h-[2rem] sm:min-h-[3rem]">{laptop.name}</h2>
+                      {/* Spec Sheet */}
+                      <SpecSheet laptop={laptop} className="mt-2 sm:mt-3" />
                       {/* Price */}
-                      <p className="mt-4 text-2xl font-extrabold text-gray-900">${laptop.price.toLocaleString()}</p>
+                      <p className="mt-2 sm:mt-4 text-base sm:text-2xl font-extrabold text-gray-900">${laptop.price.toLocaleString()}</p>
                       {/* Buttons */}
-                      <div className="mt-4 grid grid-cols-2 gap-3">
-                        <button onClick={() => handleAddToCart(laptop)} className={`rounded-xl py-2.5 text-sm font-semibold transition-colors ${added === laptop.id ? "bg-green-500 text-white" : "border border-blue-600 text-blue-600 hover:bg-blue-50"}`}>
+                      <div className="mt-2 sm:mt-4 grid grid-cols-2 gap-1.5 sm:gap-2 md:gap-3">
+                        <button onClick={() => handleAddToCart(laptop)} className={`rounded-lg sm:rounded-xl py-2 sm:py-2.5 text-[10px] sm:text-xs md:text-sm font-semibold transition-colors ${added === laptop.id ? "bg-green-500 text-white" : "border border-blue-600 text-blue-600 hover:bg-blue-50"}`}>
                           {added === laptop.id ? "✓ Added!" : "Add to Cart"}
                         </button>
-                        <button onClick={() => handleBuyNow(laptop)} className="rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">Buy Now</button>
+                        <button onClick={() => handleBuyNow(laptop)} className="rounded-lg sm:rounded-xl bg-blue-600 py-2 sm:py-2.5 text-[10px] sm:text-xs md:text-sm font-semibold text-white hover:bg-blue-700 transition-colors">Buy Now</button>
                       </div>
                     </div>
                   </article>

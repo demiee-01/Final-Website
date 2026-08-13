@@ -17,6 +17,99 @@ body {
 }
 
 a {
-  color: inherit;
   text-decoration: none;
 }
+
+/* Order success animations */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes draw {
+  from { stroke-dashoffset: 100; }
+  to   { stroke-dashoffset: 0; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+}
+
+.animate-draw {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: draw 0.6s ease-out 0.3s forwards;
+}
+
+/* ── Hero slider animations ── */
+@keyframes hero-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes hero-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes hero-text {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-hero-fade-in {
+  animation: hero-fade-in 1s ease-in-out forwards;
+}
+
+.animate-hero-fade-out {
+  animation: hero-fade-out 1s ease-in-out forwards;
+}
+
+.animate-hero-text {
+  animation: hero-text 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ── Scroll reveal animations ── */
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-up-sm {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.scroll-hidden {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.scroll-visible {
+  animation: slide-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Staggered delays for cards in a row */
+.scroll-delay-1 { animation-delay: 0.05s; }
+.scroll-delay-2 { animation-delay: 0.12s; }
+.scroll-delay-3 { animation-delay: 0.19s; }
+.scroll-delay-4 { animation-delay: 0.26s; }
+.scroll-delay-5 { animation-delay: 0.33s; }
+.scroll-delay-6 { animation-delay: 0.40s; }
+
+/* ── Floating laptop animations ── */
+@keyframes float-1 {
+  0%, 100% { transform: translateY(0px) rotate(var(--tw-rotate, 0deg)); }
+  50%       { transform: translateY(-10px) rotate(var(--tw-rotate, 0deg)); }
+}
+@keyframes float-2 {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
+}
+@keyframes float-3 {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+.animate-float-1 { animation: float-1 4s ease-in-out infinite; }
+.animate-float-2 { animation: float-2 5s ease-in-out infinite; }
+.animate-float-3 { animation: float-3 3.5s ease-in-out infinite; }
