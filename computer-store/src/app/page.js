@@ -14,12 +14,13 @@ import { useCart } from "@/context/CartContext";
 import ScrollReveal from "@/components/ScrollReveal";
 import AuthGuard from "@/components/AuthGuard";
 import { useAuth } from "@clerk/nextjs";
+import SpecSheet from "@/components/SpecSheet";
 
 /* ── HERO SLIDES DATA ──
    Each slide has an image, badge text, title, subtitle, and a CTA button */
 const heroSlides = [
   {
-    image: "/images/banner/banner_2.png",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/banner_2.png",
     badge: "New Arrivals",
     title: "Find the Perfect Laptop",
     subtitle: "Top picks for work, study, and gaming — all in one place.",
@@ -27,7 +28,7 @@ const heroSlides = [
     href: "/laptops",
   },
   {
-    image: "/images/banner/banner_6.png",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/banner_6.png",
     badge: "ASUS ROG",
     title: "Dominate Every Game",
     subtitle: "Ultimate performance for serious gamers. Built to win.",
@@ -35,7 +36,7 @@ const heroSlides = [
     href: "/laptops",
   },
   {
-    image: "/images/banner/banner_3.png",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/banner_4.png",
     badge: "Top Deals",
     title: "Powerful Laptops, Great Prices",
     subtitle: "Explore our latest collection of high-performance laptops.",
@@ -43,7 +44,7 @@ const heroSlides = [
     href: "/laptops",
   },
   {
-    image: "/images/banner/banner_4.png",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/banner_4.png",
     badge: "Gaming Series",
     title: "Level Up Your Game",
     subtitle: "Built for speed, power, and unstoppable performance.",
@@ -51,7 +52,7 @@ const heroSlides = [
     href: "/laptops",
   },
   {
-    image: "/images/banner/banner_5.png",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/banner_1.jpg",
     badge: "Work & Study",
     title: "Laptops for Every Task",
     subtitle: "Productivity meets performance — find your perfect match.",
@@ -60,7 +61,7 @@ const heroSlides = [
   },
   
   {
-    image: "/images/banner/banner_1.jpg",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/banner_5.png",
     badge: "New Stock",
     title: "Fresh Arrivals In Store",
     subtitle: "The latest models from top brands, now available.",
@@ -72,11 +73,11 @@ const heroSlides = [
 /* ── BRANDS DATA ──
    Shown in the brands bar below the hero */
 const brands = [
-  { name: "ASUS", logo: "/images/laptops/asus/asus_6.png", href: "/laptops" },
-  { name: "Dell", logo: "/images/laptops/dell/dell_2.png", href: "/laptops" },
-  { name: "HP", logo: "/images/laptops/hp/hp_4.png", href: "/laptops" },
-  { name: "Lenovo", logo: "/images/laptops/lenovo/lenovo_4.png", href: "/laptops" },
-  { name: "MSI", logo: "/images/laptops/msi/msi_4.png", href: "/laptops" },
+  { name: "ASUS", logo: "https://ik.imagekit.io/wn1nobtx5/laptop/asus_6.png", href: "/laptops" },
+  { name: "Dell", logo: "https://ik.imagekit.io/wn1nobtx5/laptop/dell_2.png", href: "/laptops" },
+  { name: "HP", logo: "https://ik.imagekit.io/wn1nobtx5/laptop/hp_4.png", href: "/laptops" },
+  { name: "Lenovo", logo: "https://ik.imagekit.io/wn1nobtx5/laptop/lenovo_4.png", href: "/laptops" },
+  { name: "MSI", logo: "https://ik.imagekit.io/wn1nobtx5/laptop/msi_4.png", href: "/laptops" },
 ];
 
 export default function HomePage() {
@@ -184,17 +185,21 @@ export default function HomePage() {
         {/* Dark gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-gray-950 via-gray-950/30 to-transparent" />
 
-        {/* Animated text content — re-mounts on slide change via key */}
-        <div key={animKey} className="relative mx-auto flex h-full max-w-7xl flex-col justify-center px-6 animate-hero-text">
-          <span className="mb-3 inline-block rounded-full bg-blue-600 px-4 py-1 text-sm font-semibold text-white w-fit">
-            {heroSlides[slide].badge}
-          </span>
-          <h1 className="max-w-2xl text-4xl font-extrabold leading-tight text-white sm:text-5xl lg:text-6xl">
-            {heroSlides[slide].title}
-          </h1>
-          <p className="mt-4 max-w-lg text-lg text-gray-300">{heroSlides[slide].subtitle}</p>
+        {/* Content wrapper — static, no re-mount */}
+        <div className="relative mx-auto flex h-full max-w-7xl flex-col justify-center px-6">
 
-          {/* CTA Buttons */}
+          {/* Only badge + title + subtitle animate on slide change */}
+          <div key={animKey} className="animate-hero-text">
+            <span className="mb-3 inline-block rounded-full bg-blue-600 px-4 py-1 text-sm font-semibold text-white w-fit">
+              {heroSlides[slide].badge}
+            </span>
+            <h1 className="max-w-2xl text-4xl font-extrabold leading-tight text-white sm:text-5xl lg:text-6xl">
+              {heroSlides[slide].title}
+            </h1>
+            <p className="mt-4 max-w-lg text-lg text-gray-300">{heroSlides[slide].subtitle}</p>
+          </div>
+
+          {/* CTA Buttons — static, no animation */}
           <div className="mt-8 flex gap-4">
             <Link href={heroSlides[slide].href} className="rounded-lg bg-blue-600 px-7 py-3 font-semibold text-white hover:bg-blue-700 transition-colors">
               {heroSlides[slide].cta}
@@ -204,7 +209,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Hero Search Bar */}
+          {/* Hero Search Bar — static, no animation */}
           <form onSubmit={handleHeroSearch} className="mt-8 flex w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-lg">
             <input
               type="text"
@@ -235,7 +240,7 @@ export default function HomePage() {
       {/* ── BRANDS BAR ──
           Shows brand logos with grayscale → color hover effect */}
       <section className="border-b border-gray-100 bg-gray-50 py-10">
-        <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <p className="mb-6 text-center text-sm font-semibold uppercase tracking-widest text-gray-400">
             Top Brands
           </p>
@@ -257,7 +262,7 @@ export default function HomePage() {
       {/* ── POPULAR LAPTOPS ──
           Shows first 6 laptops fetched from /api/laptops
           Each card has specs, price, Add to Cart, and Buy Now */}
-      <section className="py-16 px-6">
+      <section className="py-16 px-4 sm:px-6">
         <div className="mx-auto max-w-7xl">
 
           {/* Section Header */}
@@ -273,55 +278,47 @@ export default function HomePage() {
 
           {/* Skeleton loading — shown while data is being fetched */}
           {laptops.length === 0 ? (
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-10 grid gap-3 grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
               {[1, 2, 3, 4].map((n) => (
-                <div key={n} className="h-72 animate-pulse rounded-2xl bg-gray-100" />
+                <div key={n} className="h-64 sm:h-72 animate-pulse rounded-2xl bg-gray-100" />
               ))}
             </div>
           ) : (
-            /* Laptop Cards Grid — 4 per row */
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            /* Laptop Cards Grid — 2 per row on mobile, 4 on tablet, 4 on desktop */
+            <div className="mt-10 grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
               {laptops.map((laptop, index) => (
                 <ScrollReveal key={laptop.id} delay={(index % 4) + 1}>
                 <article
-                  className="flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow"
+                  className="flex flex-col overflow-hidden rounded-xl sm:rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow"
                 >
-                  {/* Laptop Image — 10% smaller: h-52→h-48, w-52→w-48 */}
-                  <div className="flex h-56 w-full items-center justify-center bg-white p-3">
-                    <div className="relative h-44 w-44">
-                      <Image src={laptop.image} alt={laptop.name} fill className="object-contain" />
-                    </div>
+                  {/* Laptop Image — responsive sizing */}
+                  <div className="flex h-32 sm:h-56 w-full items-center justify-center bg-white p-2 sm:p-3">
+                    <img 
+                      src={laptop.image} 
+                      alt={laptop.name} 
+                      className="h-24 sm:h-44 w-24 sm:w-44 object-contain"
+                    />
                   </div>
 
                   {/* Laptop Info */}
-                  <div className="flex flex-1 flex-col p-5">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-blue-600">{laptop.brand}</span>
-                    <h3 className="mt-1 text-lg font-bold text-gray-900">{laptop.name}</h3>
+                  <div className="flex flex-1 flex-col p-2 sm:p-5">
+                    <span className="text-[9px] sm:text-xs font-semibold uppercase tracking-wide text-blue-600">{laptop.brand}</span>
+                    <h3 className="mt-1 text-xs sm:text-lg font-bold text-gray-900 line-clamp-2 min-h-[2rem] sm:min-h-[3rem]">{laptop.name}</h3>
 
-                    {/* Spec Rows — each spec shown as a blue pill row */}
-                    <div className="mt-3 space-y-2">
-                      {[
-                        { label: "CPU", value: laptop.cpu },
-                        { label: "GPU", value: laptop.gpu },
-                        { label: "RAM", value: laptop.ram },
-                        { label: "Storage", value: laptop.storage },
-                      ].map((r) => r.value ? (
-                        <div key={r.label} className="flex items-center justify-between rounded-xl bg-blue-50 px-4 py-3 text-sm">
-                          <span className="font-semibold text-blue-600">{r.label}</span>
-                          <span className="font-medium text-gray-800">{r.value}</span>
-                        </div>
-                      ) : null)}
+                    {/* Spec Sheet - hide some on mobile */}
+                    <div className="mt-2 sm:mt-3">
+                      <SpecSheet laptop={laptop} className="" />
                     </div>
 
                     {/* Price */}
-                    <p className="mt-4 text-2xl font-extrabold text-gray-900">${laptop.price.toLocaleString()}</p>
+                    <p className="mt-2 sm:mt-4 text-base sm:text-2xl font-extrabold text-gray-900">${laptop.price.toLocaleString()}</p>
 
                     {/* Action Buttons */}
-                    <div className="mt-4 grid grid-cols-2 gap-3">
+                    <div className="mt-2 sm:mt-4 grid grid-cols-2 gap-1.5 sm:gap-2 md:gap-3">
                       {/* Add to Cart — turns green briefly when clicked */}
                       <button
                         onClick={() => handleAddToCart(laptop)}
-                        className={`rounded-xl py-2.5 text-sm font-semibold transition-colors ${
+                        className={`rounded-lg sm:rounded-xl py-2 sm:py-2.5 text-[10px] sm:text-xs md:text-sm font-semibold transition-colors ${
                           added === laptop.id ? "bg-green-500 text-white" : "border border-blue-600 text-blue-600 hover:bg-blue-50"
                         }`}
                       >
@@ -330,7 +327,7 @@ export default function HomePage() {
                       {/* Buy Now — adds to cart and goes straight to cart page */}
                       <button
                         onClick={() => handleBuyNow(laptop)}
-                        className="rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                        className="rounded-lg sm:rounded-xl bg-blue-600 py-2 sm:py-2.5 text-[10px] sm:text-xs md:text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
                       >
                         Buy Now
                       </button>

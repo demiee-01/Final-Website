@@ -29,16 +29,32 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <Link href="/">
-              <Image src="/images/logos/nav-logo.png" alt="Computer Store" width={160} height={44} className="object-contain" />
+              <Image src="https://ik.imagekit.io/wn1nobtx5/laptop/nav-logo.png" alt="Computer Store" width={160} height={44} className="object-contain" />
             </Link>
             <p className="mt-3 text-sm leading-relaxed">
               Your one-stop shop for premium laptops and computing gear.
             </p>
             {/* Social icons */}
             <div className="mt-5 flex gap-3">
-              {["f", "𝕏", "📷", "▶"].map((icon, i) => (
-                <a key={i} href="#" className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-700 text-sm text-gray-400 hover:border-blue-500 hover:text-white transition-colors">
-                  {icon}
+              {[
+                { icon: "https://ik.imagekit.io/wn1nobtx5/laptop/fb.jpg", label: "Facebook", href: "#" },
+                { icon: "https://ik.imagekit.io/wn1nobtx5/laptop/tele.jpg", label: "Telegram", href: "#" },
+                { icon: "https://ik.imagekit.io/wn1nobtx5/laptop/tiktok.jpg", label: "TikTok", href: "#" },
+                { icon: "https://ik.imagekit.io/wn1nobtx5/laptop/tee.jpg", label: "Tell", href: "#" },
+              ].map((social, i) => (
+                <a 
+                  key={i} 
+                  href={social.href} 
+                  className="flex h-9 w-9 items-center justify-center rounded-full overflow-hidden border border-gray-700 hover:border-blue-500 transition-all hover:scale-110"
+                  aria-label={social.label}
+                >
+                  <Image 
+                    src={social.icon} 
+                    alt={social.label} 
+                    width={36} 
+                    height={36} 
+                    className="object-cover"
+                  />
                 </a>
               ))}
             </div>

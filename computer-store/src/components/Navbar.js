@@ -35,6 +35,11 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Hide navbar on admin pages
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <header className="sticky top-0 z-50 bg-gray-100 px-6 py-2">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
@@ -42,7 +47,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="shrink-0">
           <Image
-            src="/images/logos/nav-logo.png"
+            src="https://ik.imagekit.io/wn1nobtx5/laptop/Nav-logo.png"
             alt="Computer Store"
             width={120}
             height={32}
@@ -152,6 +157,7 @@ export default function Navbar() {
                 </Link>
               );
             })}
+            
             <Link
               href="/cart"
               onClick={() => setMenuOpen(false)}

@@ -3,6 +3,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/context/CartContext";
+import ConditionalFooter from "@/components/ConditionalFooter";
 
 export const metadata = {
   title: "Computer Store",
@@ -17,7 +18,7 @@ export default function RootLayout({ children }) {
           <CartProvider>
             <Navbar />
             {children}
-            <Footer />
+            <ConditionalFooter />
           </CartProvider>
         </body>
       </html>
