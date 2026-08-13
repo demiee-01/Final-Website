@@ -10,7 +10,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCart } from "@/context/CartContext";
@@ -18,6 +18,9 @@ import ScrollReveal from "@/components/ScrollReveal";
 import AuthGuard from "@/components/AuthGuard";
 import { useAuth } from "@clerk/nextjs";
 import SpecSheet from "@/components/SpecSheet";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
 
 /* Filter option constants */
 const RAM_OPTIONS = ["Any", "8GB", "16GB", "32GB"];
@@ -74,13 +77,23 @@ export default function LaptopsPage() {
 
   /* Filter state — reads ?q= from URL for search */
   const searchParams = useSearchParams();
-  const [search, setSearch] = useState(searchParams.get("q") || "");
-  const [brandFilter, setBrandFilter] = useState(searchParams.get("brand") || "All");
+  const [search, setSearch] = useState("");
+  const [brandFilter, setBrandFilter] = useState("All");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [modelFilter, setModelFilter] = useState("Any");
   const [ramFilter, setRamFilter] = useState("Any");
   const [cpuFilter, setCpuFilter] = useState("Any");
   const [maxPrice, setMaxPrice] = useState(MAX_PRICE);
+
+  // Initialize from URL params
+  useEffect(() => {
+    if (searchParams) {
+      const q = searchParams.get("q");
+      const brand = searchParams.get("brand");
+      if (q) setSearch(q);
+      if (brand) setBrandFilter(brand);
+    }
+  }, [searchParams]);
 
   const { addToCart } = useCart();
   const router = useRouter();
