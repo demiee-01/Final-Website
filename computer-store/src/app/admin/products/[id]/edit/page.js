@@ -2,23 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
+import Link from "next/link";
+import ImageUpload from "@/components/ImageUpload";
 
 const initialForm = {
-  name: "",
-  brand: "",
-  price: "",
-  cpu: "",
-  ram: "",
-  storage: "",
-  image: "",
+  name: "", brand: "", category: "Gaming", price: "", cpu: "", gpu: "", ram: "", storage: "", display: "", os: "", keyboard: "", image: "",
 };
 
-export default function EditProductPage() {
-  const params = useParams();
-  const router = useRouter();
+const inputClass = "w-full rounded-xl border border-gray-200 p-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition";
 
-  const id = params.id;
+export default function EditProductPage() {
+  const { id } = useParams();
+  const router = useRouter();
 
   const [form, setForm] = useState(initialForm);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,84 +22,65 @@ export default function EditProductPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!id) return;
     async function fetchLaptop() {
       try {
-        setError("");
-
         const response = await fetch(`/api/laptops/${id}`);
-
         const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(result.message || "Failed to load laptop.");
-        }
-
+        if (!response.ok) throw new Error(result.message || "Failed to load laptop.");
+        const d = result.data;
         setForm({
-          name: result.data.name || "",
-          brand: result.data.brand || "",
-          price: result.data.price || "",
-          cpu: result.data.cpu || "",
-          ram: result.data.ram || "",
-          storage: result.data.storage || "",
-          image: result.data.image || "",
+          name: d.name || "",
+          brand: d.brand || "",
+          category: d.category || "Gaming",
+          price: d.price || "",
+          cpu: d.cpu || "",
+          gpu: d.gpu || "",
+          ram: d.ram || "",
+          storage: d.storage || "",
+          display: d.display || "",
+          os: d.os || "",
+          keyboard: d.keyboard || "",
+          image: d.image || "",
         });
-      } catch (error) {
-        setError(error.message);
+      } catch (err) {
+        setError(err.message);
       } finally {
         setIsLoading(false);
       }
     }
-
-    if (id) {
-      fetchLaptop();
-    }
+    fetchLaptop();
   }, [id]);
 
-  function handleChange(event) {
-    const { name, value } = event.target;
-
-    setForm((previousForm) => ({
-      ...previousForm,
-      [name]: value,
-    }));
+  function handleChange(e) {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   }
 
-  async function handleSubmit(event) {
-    event.preventDefault();
+  function handleImageUpload(url) {
+    setForm((prev) => ({ ...prev, image: url }));
+  }
 
-    setSuccess("");
-    setError("");
-
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setSuccess(""); setError("");
     if (!form.name || !form.brand || !form.price) {
       setError("Name, brand, and price are required.");
       return;
     }
-
     setIsSubmitting(true);
-
     try {
       const response = await fetch(`/api/laptops/${id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-
       const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Failed to update laptop.");
-      }
-
-      setSuccess(result.message);
-
-      setTimeout(() => {
-        router.push("/laptops");
-        router.refresh();
-      }, 1000);
-    } catch (error) {
-      setError(error.message);
+      if (!response.ok) throw new Error(result.message || "Failed to update laptop.");
+      setSuccess("Laptop updated successfully!");
+      setTimeout(() => router.push("/admin/products"), 1200);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -112,156 +88,136 @@ export default function EditProductPage() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-gray-50 p-10">
-        <p className="text-lg text-gray-600">Loading laptop...</p>
-      </main>
+      <div className="mx-auto max-w-2xl space-y-4">
+        {[1,2,3,4].map(n => <div key={n} className="h-12 animate-pulse rounded-xl bg-gray-200" />)}
+      </div>
     );
   }
 
   if (error && !form.name) {
     return (
-      <main className="min-h-screen bg-gray-50 p-10">
-        <div className="mx-auto max-w-2xl rounded-lg bg-red-100 p-4">
-          <p className="text-red-700">{error}</p>
-        </div>
-      </main>
+      <div className="mx-auto max-w-2xl rounded-xl bg-red-50 border border-red-200 p-6 text-red-700">
+        {error}
+        <Link href="/admin/products" className="mt-4 block text-sm font-semibold text-blue-600 hover:underline">
+          ← Back to Products
+        </Link>
+      </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 px-6 py-10">
-      <div className="mx-auto max-w-2xl rounded-xl bg-white p-8 shadow">
-        <h1 className="text-3xl font-bold text-gray-900">Edit Laptop</h1>
+    <div className="mx-auto max-w-2xl">
 
-        <p className="mt-2 text-gray-600">Product ID: {id}</p>
+        {/* Breadcrumb */}
+        <p className="text-sm text-gray-400">
+          <Link href="/admin" className="hover:text-blue-600">Dashboard</Link>
+          {" / "}
+          <Link href="/admin/products" className="hover:text-blue-600">Products</Link>
+          {" / "}
+          <span className="font-medium text-gray-700">Edit Laptop</span>
+        </p>
+
+        <h1 className="mt-4 text-3xl font-bold text-gray-900">Edit Laptop</h1>
+        <p className="mt-1 text-gray-500">Product ID: {id}</p>
 
         {success && (
-          <p className="mt-5 rounded-lg bg-green-100 p-3 text-green-700">
-            {success}
-          </p>
+          <div className="mt-5 flex items-center gap-2 rounded-xl bg-green-50 border border-green-200 p-4 text-green-700 text-sm">
+            <span>✅</span> {success}
+          </div>
         )}
-
         {error && (
-          <p className="mt-5 rounded-lg bg-red-100 p-3 text-red-700">{error}</p>
-        )}
-
-        {form.image && (
-          <div className="relative mt-6 h-56 w-full rounded-lg bg-gray-100">
-            <Image
-              src={form.image}
-              alt={form.name || "Laptop image"}
-              fill
-              className="object-contain p-4"
-            />
+          <div className="mt-5 rounded-xl bg-red-50 border border-red-200 p-4 text-red-700 text-sm">
+            {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <div>
-            <label className="mb-2 block font-medium">Laptop Name</label>
+        <form onSubmit={handleSubmit} className="mt-6 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm space-y-5">
 
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 p-3 outline-none focus:border-blue-600"
-            />
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-gray-700">Laptop Name *</label>
+              <input name="name" value={form.name} onChange={handleChange} className={inputClass} required />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-gray-700">Brand *</label>
+              <input name="brand" value={form.brand} onChange={handleChange} className={inputClass} required />
+            </div>
           </div>
 
           <div>
-            <label className="mb-2 block font-medium">Brand</label>
-
-            <input
-              type="text"
-              name="brand"
-              value={form.brand}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 p-3 outline-none focus:border-blue-600"
-            />
+            <label className="mb-1.5 block text-sm font-semibold text-gray-700">Price (USD) *</label>
+            <input name="price" type="number" min="0" value={form.price} onChange={handleChange} className={inputClass} required />
           </div>
 
           <div>
-            <label className="mb-2 block font-medium">Price</label>
+            <label className="mb-1.5 block text-sm font-semibold text-gray-700">Category *</label>
+            <select name="category" value={form.category} onChange={handleChange} className={inputClass} required>
+              <option value="Gaming">Gaming</option>
+              <option value="Gaming & Office">Gaming &amp; Office</option>
+              <option value="Office">Office</option>
+            </select>
+          </div>
 
-            <input
-              type="number"
-              name="price"
-              min="0"
-              value={form.price}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 p-3 outline-none focus:border-blue-600"
-            />
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-gray-700">CPU</label>
+              <input name="cpu" value={form.cpu} onChange={handleChange} className={inputClass} />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-gray-700">GPU</label>
+              <input name="gpu" value={form.gpu} onChange={handleChange} className={inputClass} />
+            </div>
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-gray-700">RAM</label>
+              <input name="ram" value={form.ram} onChange={handleChange} className={inputClass} />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-gray-700">Storage</label>
+              <input name="storage" value={form.storage} onChange={handleChange} className={inputClass} />
+            </div>
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-gray-700">Display</label>
+              <input name="display" value={form.display} onChange={handleChange} placeholder="e.g. 15.6-inch FHD 144Hz" className={inputClass} />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-gray-700">OS</label>
+              <input name="os" value={form.os} onChange={handleChange} placeholder="e.g. Windows 11 Home" className={inputClass} />
+            </div>
           </div>
 
           <div>
-            <label className="mb-2 block font-medium">CPU</label>
-
-            <input
-              type="text"
-              name="cpu"
-              value={form.cpu}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 p-3 outline-none focus:border-blue-600"
-            />
+            <label className="mb-1.5 block text-sm font-semibold text-gray-700">Keyboard</label>
+            <input name="keyboard" value={form.keyboard} onChange={handleChange} placeholder="e.g. RGB Backlit" className={inputClass} />
           </div>
 
+          {/* Image Upload Component */}
           <div>
-            <label className="mb-2 block font-medium">RAM</label>
-
-            <input
-              type="text"
-              name="ram"
-              value={form.ram}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 p-3 outline-none focus:border-blue-600"
-            />
+            <label className="mb-1.5 block text-sm font-semibold text-gray-700">Product Image</label>
+            <ImageUpload onUploadSuccess={handleImageUpload} currentImage={form.image} />
           </div>
 
-          <div>
-            <label className="mb-2 block font-medium">Storage</label>
-
-            <input
-              type="text"
-              name="storage"
-              value={form.storage}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 p-3 outline-none focus:border-blue-600"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block font-medium">Image Path</label>
-
-            <input
-              type="text"
-              name="image"
-              value={form.image}
-              onChange={handleChange}
-              placeholder="/images/laptops/asus/rog1.jpg"
-              className="w-full rounded-lg border border-gray-300 p-3 outline-none focus:border-blue-600"
-            />
-          </div>
-
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={() => router.push("/laptops")}
-              className="w-full rounded-lg border border-gray-300 px-5 py-3 font-medium hover:bg-gray-100"
+          <div className="flex gap-3 pt-2">
+            <Link
+              href="/admin/products"
+              className="flex-1 rounded-xl border border-gray-200 py-3 text-center text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
             >
               Cancel
-            </button>
-
+            </Link>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-lg bg-blue-600 px-5 py-3 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex-1 rounded-xl bg-blue-600 py-3 text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
             >
-              {isSubmitting ? "Updating..." : "Update Laptop"}
+              {isSubmitting ? "Updating..." : "Update Product"}
             </button>
           </div>
         </form>
-      </div>
-    </main>
+    </div>
   );
 }
