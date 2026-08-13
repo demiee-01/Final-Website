@@ -1,38 +1,17 @@
-import { laptops } from "@/data/laptops";
+import clientPromise from "@/lib/mongodb";
+import { supabase } from "@/lib/supabase";
 
 // GET one laptop by ID
 export async function GET(request, { params }) {
-  const { id } = await params;
-  const laptopId = Number(id);
-
-  const laptop = laptops.find((item) => item.id === laptopId);
-
-  if (!laptop) {
-    return Response.json(
-      {
-        success: false,
-        message: "Laptop not found.",
-      },
-      { status: 404 },
-    );
-  }
-
-  return Response.json({
-    success: true,
-    data: laptop,
-  });
-}
-
-// UPDATE laptop by ID
-export async function PUT(request, { params }) {
   try {
     const { id } = await params;
     const laptopId = Number(id);
-    const body = await request.json();
 
-    const laptopIndex = laptops.findIndex((item) => item.id === laptopId);
+    const client = await clientPromise;
+    const db = client.db("computer-store");
+    const laptop = await db.collection("laptops").findOne({ id: laptopId });
 
-    if (laptopIndex === -1) {
+    if (!laptop) {
       return Response.json(
         {
           success: false,
@@ -41,6 +20,28 @@ export async function PUT(request, { params }) {
         { status: 404 },
       );
     }
+
+    return Response.json({
+      success: true,
+      data: laptop,
+    });
+  } catch (error) {
+    return Response.json(
+      {
+        success: false,
+        message: "Failed to fetch laptop.",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// UPDATE laptop by ID
+export async function PUT(request, { params }) {
+  try {
+    const { id } = await params;
+    const laptopId = Number(id);
+    const body = await request.json();
 
     if (!body.name || !body.brand || !body.price) {
       return Response.json(
@@ -53,22 +54,42 @@ export async function PUT(request, { params }) {
     }
 
     const updatedLaptop = {
-      ...laptops[laptopIndex],
       name: body.name.trim(),
       brand: body.brand.trim(),
+      category: body.category || "Gaming",
       price: Number(body.price),
       cpu: body.cpu?.trim() || "",
+      gpu: body.gpu?.trim() || "",
       ram: body.ram?.trim() || "",
       storage: body.storage?.trim() || "",
-      image: body.image?.trim() || laptops[laptopIndex].image,
+      display: body.display?.trim() || "",
+      os: body.os?.trim() || "",
+      keyboard: body.keyboard?.trim() || "",
+      image: body.image?.trim() || "",
     };
 
-    laptops[laptopIndex] = updatedLaptop;
+    const client = await clientPromise;
+    const db = client.db("computer-store");
+    const result = await db.collection("laptops").findOneAndUpdate(
+      { id: laptopId },
+      { $set: updatedLaptop },
+      { returnDocument: "after" }
+    );
+
+    if (!result) {
+      return Response.json(
+        {
+          success: false,
+          message: "Laptop not found.",
+        },
+        { status: 404 },
+      );
+    }
 
     return Response.json({
       success: true,
       message: "Laptop updated successfully.",
-      data: updatedLaptop,
+      data: result,
     });
   } catch (error) {
     return Response.json(
@@ -81,15 +102,19 @@ export async function PUT(request, { params }) {
   }
 }
 
-// delete
+// DELETE laptop by ID
 export async function DELETE(request, { params }) {
   try {
     const { id } = await params;
     const laptopId = Number(id);
 
-    const laptopIndex = laptops.findIndex((item) => item.id === laptopId);
+    const client = await clientPromise;
+    const db = client.db("computer-store");
+    
+    // First, get the laptop to find the image URL
+    const laptop = await db.collection("laptops").findOne({ id: laptopId });
 
-    if (laptopIndex === -1) {
+    if (!laptop) {
       return Response.json(
         {
           success: false,
@@ -99,16 +124,41 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    const deletedLaptop = laptops[laptopIndex];
+    // Delete the laptop from database
+    const result = await db.collection("laptops").findOneAndDelete({ id: laptopId });
 
-    laptops.splice(laptopIndex, 1);
+    // Delete image from Supabase if it exists and is a Supabase URL
+    if (laptop.image && laptop.image.includes('supabase.co')) {
+      try {
+        // Extract the file path from the URL
+        // URL format: https://xxxxx.supabase.co/storage/v1/object/public/laptop-images/laptops/filename.jpg
+        const urlParts = laptop.image.split('/laptop-images/');
+        if (urlParts.length > 1) {
+          const filePath = urlParts[1];
+          
+          const { error: deleteError } = await supabase.storage
+            .from('laptop-images')
+            .remove([filePath]);
+
+          if (deleteError) {
+            console.error('Failed to delete image from Supabase:', deleteError);
+            // Don't fail the whole operation if image deletion fails
+          } else {
+            console.log('✅ Image deleted from Supabase:', filePath);
+          }
+        }
+      } catch (imageError) {
+        console.error('Error deleting image:', imageError);
+        // Continue even if image deletion fails
+      }
+    }
 
     return Response.json({
       success: true,
       message: "Laptop deleted successfully.",
-      data: deletedLaptop,
+      data: result,
     });
-  } catch {
+  } catch (error) {
     return Response.json(
       {
         success: false,

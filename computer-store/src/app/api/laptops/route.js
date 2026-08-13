@@ -1,10 +1,24 @@
-import { laptops } from "@/data/laptops";
+import clientPromise from "@/lib/mongodb";
 
 export async function GET() {
-  return Response.json({
-    success: true,
-    data: laptops,
-  });
+  try {
+    const client = await clientPromise;
+    const db = client.db("computer-store");
+    const laptops = await db.collection("laptops").find({}).toArray();
+
+    return Response.json({
+      success: true,
+      data: laptops,
+    });
+  } catch (error) {
+    return Response.json(
+      {
+        success: false,
+        message: "Failed to fetch laptops.",
+      },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request) {
@@ -25,14 +39,21 @@ export async function POST(request) {
       id: Date.now(),
       name: body.name,
       brand: body.brand,
+      category: body.category || "Gaming",
       price: Number(body.price),
       cpu: body.cpu || "",
+      gpu: body.gpu || "",
       ram: body.ram || "",
       storage: body.storage || "",
+      display: body.display || "",
+      os: body.os || "",
+      keyboard: body.keyboard || "",
       image: body.image || "/images/placeholder.jpg",
     };
 
-    laptops.push(newLaptop);
+    const client = await clientPromise;
+    const db = client.db("computer-store");
+    await db.collection("laptops").insertOne(newLaptop);
 
     return Response.json(
       {
@@ -42,7 +63,7 @@ export async function POST(request) {
       },
       { status: 201 },
     );
-  } catch {
+  } catch (error) {
     return Response.json(
       {
         success: false,
