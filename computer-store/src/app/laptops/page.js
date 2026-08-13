@@ -19,9 +19,6 @@ import AuthGuard from "@/components/AuthGuard";
 import { useAuth } from "@clerk/nextjs";
 import SpecSheet from "@/components/SpecSheet";
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 /* Filter option constants */
 const RAM_OPTIONS = ["Any", "8GB", "16GB", "32GB"];
 const CPU_OPTIONS = ["Any", "Intel", "AMD"];
@@ -68,6 +65,27 @@ function PillGroup({ options, value, onChange }) {
 }
 
 export default function LaptopsPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <LaptopsContent />
+    </Suspense>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <main className="min-h-screen bg-gray-50 px-4 sm:px-6 py-10">
+      <div className="mx-auto max-w-7xl flex gap-8">
+        <div className="hidden w-60 shrink-0 lg:block"><div className="h-96 animate-pulse rounded-2xl bg-gray-200" /></div>
+        <div className="flex-1 grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-3">
+          {[1,2,3,4,5].map(n => <div key={n} className="h-64 sm:h-80 animate-pulse rounded-2xl bg-gray-200" />)}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function LaptopsContent() {
   /* State */
   const [laptops, setLaptops] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
