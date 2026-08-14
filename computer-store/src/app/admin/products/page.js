@@ -18,7 +18,7 @@ export default function AdminProductsPage() {
   async function fetchLaptops() {
     try {
       setError("");
-      const response = await fetch("/api/laptops");
+      const response = await fetch("/api/laptops", { cache: "no-store" });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || "Failed to load laptops.");
       setLaptops(result.data || []);

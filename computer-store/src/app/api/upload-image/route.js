@@ -1,10 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function POST(request) {
   try {
@@ -28,7 +23,7 @@ export async function POST(request) {
     const filePath = `laptops/${fileName}`;
 
     // Upload to Supabase
-    const { data, error } = await supabase.storage
+    const { error } = await supabaseAdmin.storage
       .from('laptop-images')
       .upload(filePath, buffer, {
         contentType: file.type,
@@ -45,7 +40,7 @@ export async function POST(request) {
     }
 
     // Get public URL
-    const { data: { publicUrl } } = supabase.storage
+    const { data: { publicUrl } } = supabaseAdmin.storage
       .from('laptop-images')
       .getPublicUrl(filePath);
 

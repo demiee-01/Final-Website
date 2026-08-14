@@ -1,46 +1,35 @@
 import { NextResponse } from "next/server";
-import clientPromise from "@/lib/mongodb";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 // GET customer statistics from orders
 export async function GET() {
   try {
-    const client = await clientPromise;
-    const db = client.db("computer_store");
+    const { data: orders, error } = await supabaseAdmin
+      .from("orders")
+      .select("user_id, customer_email, customer_name, total_amount, created_at");
 
-    // Aggregate orders by customer
-    const customers = await db
-      .collection("orders")
-      .aggregate([
-        {
-          $group: {
-            _id: {
-              email: "$customerEmail",
-              name: "$customerName",
-              userId: "$userId",
-            },
-            totalOrders: { $sum: 1 },
-            totalSpent: { $sum: "$totalAmount" },
-            firstOrder: { $min: "$createdAt" },
-            lastOrder: { $max: "$createdAt" },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            email: "$_id.email",
-            name: "$_id.name",
-            userId: "$_id.userId",
-            orders: "$totalOrders",
-            totalSpent: "$totalSpent",
-            joinedDate: "$firstOrder",
-            lastOrderDate: "$lastOrder",
-          },
-        },
-        {
-          $sort: { totalSpent: -1 },
-        },
-      ])
-      .toArray();
+    if (error) throw error;
+
+    const customersByEmail = new Map();
+    for (const order of orders || []) {
+      const current = customersByEmail.get(order.customer_email) || {
+        email: order.customer_email,
+        name: order.customer_name,
+        userId: order.user_id,
+        orders: 0,
+        totalSpent: 0,
+        joinedDate: order.created_at,
+        lastOrderDate: order.created_at,
+      };
+
+      current.orders += 1;
+      current.totalSpent += Number(order.total_amount);
+      if (order.created_at < current.joinedDate) current.joinedDate = order.created_at;
+      if (order.created_at > current.lastOrderDate) current.lastOrderDate = order.created_at;
+      customersByEmail.set(order.customer_email, current);
+    }
+
+    const customers = [...customersByEmail.values()].sort((a, b) => b.totalSpent - a.totalSpent);
 
     return NextResponse.json({ success: true, data: customers || [] });
   } catch (error) {

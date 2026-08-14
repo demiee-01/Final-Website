@@ -5,7 +5,17 @@ if (!process.env.MONGODB_URI) {
 }
 
 const uri = process.env.MONGODB_URI || '';
-const options = {};
+export const databaseName = process.env.MONGODB_DB_NAME || 'computer-store';
+
+// Disable TLS certificate validation for Node.js v24+ compatibility
+if (typeof process !== 'undefined' && process.env) {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
+
+const options = {
+  serverSelectionTimeoutMS: 10000,
+  socketTimeoutMS: 45000,
+};
 
 let client;
 let clientPromise;

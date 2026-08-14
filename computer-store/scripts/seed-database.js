@@ -1,11 +1,11 @@
 /**
- * MongoDB Database Seeding Script
+ * Supabase Database Seeding Script
  * Run this to populate your database with initial laptop data
  * 
  * Usage: node scripts/seed-database.js
  */
 
-const { MongoClient } = require('mongodb');
+const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config({ path: '.env' });
 
 const laptops = [
@@ -187,7 +187,7 @@ const laptops = [
     display: "16.1-inch FHD 144Hz",
     os: "Windows 11 Home",
     keyboard: "Backlit",
-    image: "https://ik.imagekit.io/wn1nobtx5/laptop/hp_1.png",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/hp_1.png?updatedAt=1786645454362",
   },
   {
     id: 12,
@@ -202,7 +202,7 @@ const laptops = [
     display: "15.6-inch FHD 60Hz",
     os: "Windows 11 Home",
     keyboard: "Backlit",
-    image: "https://ik.imagekit.io/wn1nobtx5/laptop/hp_2.png",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/hp_2.png?updatedAt=1786645454362",
   },
   {
     id: 13,
@@ -217,7 +217,7 @@ const laptops = [
     display: "13.3-inch FHD IPS",
     os: "Windows 11 Home",
     keyboard: "Backlit",
-    image: "https://ik.imagekit.io/wn1nobtx5/laptop/hp_3.png",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/hp_3.png?updatedAt=1786645453780",
   },
   {
     id: 14,
@@ -262,7 +262,7 @@ const laptops = [
     display: "15.6-inch FHD 165Hz",
     os: "Windows 11 Home",
     keyboard: "RGB Backlit",
-    image: "https://ik.imagekit.io/wn1nobtx5/laptop/lenovo_1.png",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/lenovo_1.png?updatedAt=1786645359239",
   },
   {
     id: 9,
@@ -277,7 +277,7 @@ const laptops = [
     display: "15.6-inch FHD 120Hz",
     os: "Windows 11 Home",
     keyboard: "Backlit",
-    image: "https://ik.imagekit.io/wn1nobtx5/laptop/lenovo_2.png",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/lenovo_2.png?updatedAt=1786645358568",
   },
   {
     id: 10,
@@ -292,7 +292,7 @@ const laptops = [
     display: "14-inch FHD IPS",
     os: "Windows 11 Pro",
     keyboard: "Backlit",
-    image: "https://ik.imagekit.io/wn1nobtx5/laptop/lenovo_3.png",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/lenovo_3.png?updatedAt=1786645359708",
   },
   {
     id: 11,
@@ -307,7 +307,7 @@ const laptops = [
     display: "16-inch QHD 165Hz",
     os: "Windows 11 Home",
     keyboard: "RGB Backlit",
-    image: "https://ik.imagekit.io/wn1nobtx5/laptop/lenovo_4.png",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/lenovo_4.png?updatedAt=1786645358722",
   },
   {
     id: 5,
@@ -322,7 +322,7 @@ const laptops = [
     display: "15.6-inch FHD 144Hz",
     os: "Windows 11 Home",
     keyboard: "RGB Backlit",
-    image: "https://ik.imagekit.io/wn1nobtx5/laptop/msi_1.png",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/msi_1.png?updatedAt=1786644142861",
   },
   {
     id: 6,
@@ -337,7 +337,7 @@ const laptops = [
     display: "15.6-inch FHD 144Hz",
     os: "Windows 11 Home",
     keyboard: "RGB Backlit",
-    image: "https://ik.imagekit.io/wn1nobtx5/laptop/msi_2.png",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/msi_2.png?updatedAt=1786644142667",
   },
   {
     id: 7,
@@ -352,7 +352,7 @@ const laptops = [
     display: "14-inch FHD IPS",
     os: "Windows 11 Pro",
     keyboard: "Backlit",
-    image: "https://ik.imagekit.io/wn1nobtx5/laptop/msi_3.png",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/msi_3.png?updatedAt=1786644142861",
   },
   {
     id: 8,
@@ -367,49 +367,52 @@ const laptops = [
     display: "15.6-inch FHD 60Hz",
     os: "Windows 11 Home",
     keyboard: "Backlit",
-    image: "https://ik.imagekit.io/wn1nobtx5/laptop/msi_4.png",
+    image: "https://ik.imagekit.io/wn1nobtx5/laptop/msi_4.png?updatedAt=1786644143680",
   },
 ];
 
 async function seedDatabase() {
-  if (!process.env.MONGODB_URI) {
-    console.error(' Error: MONGODB_URI not found in .env file');
-    console.log('Please add your MongoDB connection string to .env');
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.error(' Error: Supabase environment variables not found in .env file');
+    console.log('Add NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to .env');
     process.exit(1);
   }
 
-  console.log(' Connecting to MongoDB...');
-  
-  const client = new MongoClient(process.env.MONGODB_URI);
+  console.log(' Connecting to Supabase...');
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+        detectSessionInUrl: false,
+      },
+    },
+  );
 
   try {
-    await client.connect();
-    console.log(' Connected to MongoDB');
+    const { error: deleteError } = await supabase
+      .from('laptops')
+      .delete()
+      .neq('id', 0);
 
-    const db = client.db('computer-store');
-    const collection = db.collection('laptops');
+    if (deleteError) throw deleteError;
 
-    // Clear existing data
-    const deleteResult = await collection.deleteMany({});
-    console.log(`  Cleared ${deleteResult.deletedCount} existing documents`);
+    const laptopRows = laptops.map(({ id, ...laptop }) => laptop);
+    const { data, error: insertError } = await supabase
+      .from('laptops')
+      .insert(laptopRows)
+      .select('id');
 
-    // Insert new data
-    const insertResult = await collection.insertMany(laptops);
-    console.log(` Inserted ${insertResult.insertedCount} laptops`);
+    if (insertError) throw insertError;
 
-    // Verify data
-    const count = await collection.countDocuments();
-    console.log(` Total laptops in database: ${count}`);
-
+    console.log(` Inserted ${data.length} laptops`);
     console.log('\n Database seeded successfully!');
     console.log('You can now run: npm run dev');
-
   } catch (error) {
-    console.error(' Error seeding database:', error);
-    process.exit(1);
-  } finally {
-    await client.close();
-    console.log(' Connection closed');
+    console.error(' Error seeding database:', error.message);
+    process.exitCode = 1;
   }
 }
 

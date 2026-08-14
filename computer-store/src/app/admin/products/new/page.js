@@ -40,6 +40,7 @@ export default function AddProductPage() {
       if (!response.ok) throw new Error(result.message || "Failed to add laptop.");
       setSuccess("Laptop added successfully!");
       setForm(initialForm);
+      router.refresh();
       setTimeout(() => router.push("/admin/products"), 1200);
     } catch (err) {
       setError(err.message);

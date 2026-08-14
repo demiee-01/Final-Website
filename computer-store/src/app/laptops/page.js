@@ -125,10 +125,12 @@ function LaptopsContent() {
   useEffect(() => {
     async function fetchLaptops() {
       try {
-        const response = await fetch("/api/laptops");
+        const response = await fetch("/api/laptops", { cache: "no-store" });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || "Failed to fetch laptops.");
-        setLaptops(result.data || []);
+        const products = result.data || [];
+        setLaptops(products);
+        setMaxPrice(Math.max(MAX_PRICE, ...products.map((product) => Number(product.price) || 0)));
       } catch (err) {
         console.error("Error fetching laptops:", err);
         setError(err.message || "Failed to load laptops. Please try again later.");
@@ -163,8 +165,10 @@ function LaptopsContent() {
     setModelFilter("Any");
     setRamFilter("Any");
     setCpuFilter("Any");
-    setMaxPrice(MAX_PRICE);
+    setMaxPrice(catalogMaxPrice);
   }
+
+  const catalogMaxPrice = Math.max(MAX_PRICE, ...laptops.map((laptop) => Number(laptop.price) || 0));
 
   /* Model options built from fetched laptops — uses id as key to avoid duplicates */
   const modelOptions = [{ id: "any", name: "Any" }, ...laptops.map((l) => ({ id: l.id, name: l.name }))];
@@ -233,8 +237,8 @@ function LaptopsContent() {
               {/* Max Price slider */}
               <div>
                 <p className="text-sm font-bold text-gray-900">Max Price: <span className="text-blue-600">${maxPrice.toLocaleString()}</span></p>
-                <input type="range" min={0} max={MAX_PRICE} step={50} value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} className="mt-3 w-full accent-blue-600" />
-                <div className="mt-1 flex justify-between text-xs text-gray-400"><span>$0</span><span>${MAX_PRICE.toLocaleString()}</span></div>
+                <input type="range" min={0} max={catalogMaxPrice} step={50} value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} className="mt-3 w-full accent-blue-600" />
+                <div className="mt-1 flex justify-between text-xs text-gray-400"><span>$0</span><span>${catalogMaxPrice.toLocaleString()}</span></div>
               </div>
               <hr className="border-gray-100" />
               {/* RAM */}

@@ -25,7 +25,7 @@ export default function EditProductPage() {
     if (!id) return;
     async function fetchLaptop() {
       try {
-        const response = await fetch(`/api/laptops/${id}`);
+        const response = await fetch(`/api/laptops/${id}`, { cache: "no-store" });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || "Failed to load laptop.");
         const d = result.data;
@@ -78,6 +78,7 @@ export default function EditProductPage() {
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || "Failed to update laptop.");
       setSuccess("Laptop updated successfully!");
+      router.refresh();
       setTimeout(() => router.push("/admin/products"), 1200);
     } catch (err) {
       setError(err.message);

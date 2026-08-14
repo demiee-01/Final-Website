@@ -1,5 +1,4 @@
-import clientPromise from "@/lib/mongodb";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 // GET one laptop by ID
 export async function GET(request, { params }) {
@@ -7,9 +6,13 @@ export async function GET(request, { params }) {
     const { id } = await params;
     const laptopId = Number(id);
 
-    const client = await clientPromise;
-    const db = client.db("computer-store");
-    const laptop = await db.collection("laptops").findOne({ id: laptopId });
+    const { data: laptop, error } = await supabaseAdmin
+      .from("laptops")
+      .select("*")
+      .eq("id", laptopId)
+      .maybeSingle();
+
+    if (error) throw error;
 
     if (!laptop) {
       return Response.json(
@@ -69,13 +72,14 @@ export async function PUT(request, { params }) {
       image: body.image?.trim() || "",
     };
 
-    const client = await clientPromise;
-    const db = client.db("computer-store");
-    const result = await db.collection("laptops").findOneAndUpdate(
-      { id: laptopId },
-      { $set: updatedLaptop },
-      { returnDocument: "after" }
-    );
+    const { data: result, error } = await supabaseAdmin
+      .from("laptops")
+      .update(updatedLaptop)
+      .eq("id", laptopId)
+      .select()
+      .maybeSingle();
+
+    if (error) throw error;
 
     if (!result) {
       return Response.json(
@@ -109,11 +113,13 @@ export async function DELETE(request, { params }) {
     const { id } = await params;
     const laptopId = Number(id);
 
-    const client = await clientPromise;
-    const db = client.db("computer-store");
-    
-    // First, get the laptop to find the image URL
-    const laptop = await db.collection("laptops").findOne({ id: laptopId });
+    const { data: laptop, error: laptopError } = await supabaseAdmin
+      .from("laptops")
+      .select("*")
+      .eq("id", laptopId)
+      .maybeSingle();
+
+    if (laptopError) throw laptopError;
 
     if (!laptop) {
       return Response.json(
@@ -125,8 +131,14 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    // Delete the laptop from database
-    const result = await db.collection("laptops").findOneAndDelete({ id: laptopId });
+    const { data: result, error: deleteError } = await supabaseAdmin
+      .from("laptops")
+      .delete()
+      .eq("id", laptopId)
+      .select()
+      .single();
+
+    if (deleteError) throw deleteError;
 
     // Delete image from Supabase if it exists and is a Supabase URL
     if (laptop.image && laptop.image.includes('supabase.co')) {
@@ -137,12 +149,12 @@ export async function DELETE(request, { params }) {
         if (urlParts.length > 1) {
           const filePath = urlParts[1];
           
-          const { error: deleteError } = await supabase.storage
+          const { error: storageDeleteError } = await supabaseAdmin.storage
             .from('laptop-images')
             .remove([filePath]);
 
-          if (deleteError) {
-            console.error('Failed to delete image from Supabase:', deleteError);
+          if (storageDeleteError) {
+            console.error('Failed to delete image from Supabase:', storageDeleteError);
             // Don't fail the whole operation if image deletion fails
           } else {
             console.log('✅ Image deleted from Supabase:', filePath);

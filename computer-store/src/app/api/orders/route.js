@@ -1,6 +1,20 @@
 import { NextResponse } from "next/server";
-import clientPromise from "@/lib/mongodb";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { auth } from "@clerk/nextjs/server";
+
+function formatOrder(order) {
+  return {
+    ...order,
+    userId: order.user_id,
+    customerName: order.customer_name,
+    customerEmail: order.customer_email,
+    customerPhone: order.customer_phone,
+    shippingAddress: order.shipping_address,
+    paymentMethod: order.payment_method,
+    totalAmount: Number(order.total_amount),
+    createdAt: order.created_at,
+  };
+}
 
 // GET all orders (admin only)
 export async function GET(request) {
@@ -8,19 +22,13 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const email = searchParams.get('email');
     
-    const client = await clientPromise;
-    const db = client.db("computer_store");
-    
-    // Build query - filter by email if provided
-    const query = email ? { customerEmail: email } : {};
-    
-    const orders = await db
-      .collection("orders")
-      .find(query)
-      .sort({ createdAt: -1 })
-      .toArray();
+    let query = supabaseAdmin.from("orders").select("*").order("created_at", { ascending: false });
+    if (email) query = query.eq("customer_email", email);
 
-    return NextResponse.json({ success: true, data: orders || [] });
+    const { data: orders, error } = await query;
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, data: (orders || []).map(formatOrder) });
   } catch (error) {
     console.error("Error fetching orders:", error);
     return NextResponse.json(
@@ -43,7 +51,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { customerName, customerEmail, customerPhone, shippingAddress, items, totalAmount } = body;
+    const { customerName, customerEmail, customerPhone, shippingAddress, paymentMethod, items, totalAmount } = body;
 
     if (!customerName || !customerEmail || !customerPhone || !shippingAddress || !items || !totalAmount) {
       return NextResponse.json(
@@ -52,26 +60,29 @@ export async function POST(request) {
       );
     }
 
-    const client = await clientPromise;
-    const db = client.db("computer_store");
-
     const order = {
-      userId,
-      customerName,
-      customerEmail,
-      customerPhone,
-      shippingAddress,
+      user_id: userId,
+      customer_name: customerName,
+      customer_email: customerEmail,
+      customer_phone: customerPhone,
+      shipping_address: shippingAddress,
+      payment_method: paymentMethod || null,
       items,
-      totalAmount,
+      total_amount: totalAmount,
       status: "completed",
-      createdAt: new Date(),
     };
 
-    const result = await db.collection("orders").insertOne(order);
+    const { data, error } = await supabaseAdmin
+      .from("orders")
+      .insert(order)
+      .select()
+      .single();
+
+    if (error) throw error;
 
     return NextResponse.json({
       success: true,
-      data: { ...order, _id: result.insertedId },
+      data: formatOrder(data),
     });
   } catch (error) {
     return NextResponse.json(

@@ -1,15 +1,18 @@
-import clientPromise from "@/lib/mongodb";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 export async function GET() {
   try {
-    const client = await clientPromise;
-    const db = client.db("computer-store");
-    const laptops = await db.collection("laptops").find({}).toArray();
+    const { data: laptops, error } = await supabaseAdmin
+      .from("laptops")
+      .select("*")
+      .order("id");
 
-    return Response.json({
-      success: true,
-      data: laptops || [],
-    });
+    if (error) throw error;
+
+    return Response.json(
+      { success: true, data: laptops || [] },
+      { headers: { "Cache-Control": "no-store, max-age=0" } },
+    );
   } catch (error) {
     console.error("Error fetching laptops:", error);
     return Response.json(
@@ -38,7 +41,6 @@ export async function POST(request) {
     }
 
     const newLaptop = {
-      id: Date.now(),
       name: body.name,
       brand: body.brand,
       category: body.category || "Gaming",
@@ -53,15 +55,19 @@ export async function POST(request) {
       image: body.image || "/images/placeholder.jpg",
     };
 
-    const client = await clientPromise;
-    const db = client.db("computer-store");
-    await db.collection("laptops").insertOne(newLaptop);
+    const { data, error } = await supabaseAdmin
+      .from("laptops")
+      .insert(newLaptop)
+      .select()
+      .single();
+
+    if (error) throw error;
 
     return Response.json(
       {
         success: true,
         message: "Laptop added successfully.",
-        data: newLaptop,
+        data,
       },
       { status: 201 },
     );

@@ -142,7 +142,7 @@ export default function HomePage() {
   /* ── FETCH LAPTOPS ──
      Loads first 6 laptops from the API for the Popular Laptops section */
   useEffect(() => {
-    fetch("/api/laptops")
+    fetch("/api/laptops", { cache: "no-store" })
       .then((r) => r.json())
       .then((result) => {
         if (result.success && result.data) {
