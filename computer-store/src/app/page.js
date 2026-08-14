@@ -145,12 +145,14 @@ export default function HomePage() {
     fetch("/api/laptops")
       .then((r) => r.json())
       .then((result) => {
-        if (result.success) setLaptops(result.data.slice(0, 8));
+        if (result.success && result.data) {
+          setLaptops(result.data.slice(0, 8));
+        }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error("Error fetching laptops:", err);
+      });
   }, []);
-
-  const current = heroSlides[slide]; /* Current slide object */
 
   return (
     <main className="bg-white">

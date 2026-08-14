@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
@@ -208,8 +207,14 @@ export default function CartPage() {
   useEffect(() => {
     fetch("/api/laptops")
       .then((r) => r.json())
-      .then((res) => { if (res.success) setAllLaptops(res.data); })
-      .catch(() => {});
+      .then((res) => { 
+        if (res.success && res.data) {
+          setAllLaptops(res.data);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching laptops:", err);
+      });
   }, []);
 
   function toggleItem(id) {

@@ -26,6 +26,7 @@ export async function GET(request, { params }) {
       data: laptop,
     });
   } catch (error) {
+    console.error("Error fetching laptop:", error);
     return Response.json(
       {
         success: false,

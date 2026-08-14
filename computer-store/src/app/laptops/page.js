@@ -128,9 +128,11 @@ function LaptopsContent() {
         const response = await fetch("/api/laptops");
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || "Failed to fetch laptops.");
-        setLaptops(result.data);
+        setLaptops(result.data || []);
       } catch (err) {
-        setError(err.message);
+        console.error("Error fetching laptops:", err);
+        setError(err.message || "Failed to load laptops. Please try again later.");
+        setLaptops([]);
       } finally {
         setIsLoading(false);
       }

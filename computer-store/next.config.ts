@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
         pathname: '/wn1nobtx5/**',
       },
     ],
+    unoptimized: false,
+  },
+  // Ensure proper handling of environment variables
+  env: {
+    MONGODB_URI: process.env.MONGODB_URI,
   },
 };
 

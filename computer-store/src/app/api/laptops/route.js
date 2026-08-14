@@ -8,13 +8,15 @@ export async function GET() {
 
     return Response.json({
       success: true,
-      data: laptops,
+      data: laptops || [],
     });
   } catch (error) {
+    console.error("Error fetching laptops:", error);
     return Response.json(
       {
         success: false,
         message: "Failed to fetch laptops.",
+        data: [],
       },
       { status: 500 }
     );

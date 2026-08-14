@@ -42,10 +42,11 @@ export async function GET() {
       ])
       .toArray();
 
-    return NextResponse.json({ success: true, data: customers });
+    return NextResponse.json({ success: true, data: customers || [] });
   } catch (error) {
+    console.error("Error fetching customers:", error);
     return NextResponse.json(
-      { success: false, message: error.message },
+      { success: false, message: error.message, data: [] },
       { status: 500 }
     );
   }

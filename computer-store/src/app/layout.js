@@ -1,7 +1,6 @@
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { CartProvider } from "@/context/CartContext";
 import ConditionalFooter from "@/components/ConditionalFooter";
 

@@ -20,10 +20,11 @@ export async function GET(request) {
       .sort({ createdAt: -1 })
       .toArray();
 
-    return NextResponse.json({ success: true, data: orders });
+    return NextResponse.json({ success: true, data: orders || [] });
   } catch (error) {
+    console.error("Error fetching orders:", error);
     return NextResponse.json(
-      { success: false, message: error.message },
+      { success: false, message: error.message, data: [] },
       { status: 500 }
     );
   }

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function AdminProductsPage() {
   const [laptops, setLaptops] = useState([]);
@@ -22,9 +21,11 @@ export default function AdminProductsPage() {
       const response = await fetch("/api/laptops");
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || "Failed to load laptops.");
-      setLaptops(result.data);
+      setLaptops(result.data || []);
     } catch (err) {
-      setError(err.message);
+      console.error("Error fetching laptops:", err);
+      setError(err.message || "Failed to load laptops. Please try again later.");
+      setLaptops([]);
     } finally {
       setIsLoading(false);
     }

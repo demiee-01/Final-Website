@@ -27,10 +27,11 @@ export default function AdminCustomersPage() {
       }
       
       console.log("✅ Customers loaded:", result.data);
-      setCustomers(result.data);
+      setCustomers(result.data || []);
     } catch (err) {
       console.error("❌ Customers error:", err);
-      setError(err.message);
+      setError(err.message || "Failed to load customers. Please try again later.");
+      setCustomers([]);
     } finally {
       setIsLoading(false);
     }
