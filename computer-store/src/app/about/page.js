@@ -6,15 +6,35 @@ import ScrollReveal from "@/components/ScrollReveal";
 
 const heroSlides = [
   { image: "https://ik.imagekit.io/wn1nobtx5/laptop/banner_3.png", badge: "About Us",    title: "We Love Laptops",      subtitle: "Your trusted destination for premium computing gear." },
-  { image: "/https://ik.imagekit.io/wn1nobtx5/laptop/banner_6.png", badge: "Our Story",   title: "Built With Passion",   subtitle: "From gamers to professionals — we have something for everyone." },
+  { image: "/https://ik.imagekit.io/wn1nobtx5/laptop/banner_6.png", badge: "Our Story",   title: "Built With Passion",   subtitle: "From gamers to professionals  we have something for everyone." },
   { image: "https://ik.imagekit.io/wn1nobtx5/laptop/banner_4.png", badge: "Since 2020",  title: "Years of Excellence",  subtitle: "Delivering the best laptops at the best prices." },
 ];
 
 const values = [
-  { icon: "/icon/target.png",         title: "Our Mission",     desc: "Making premium laptops accessible to everyone — students, creators, and gamers." },
-  { icon: "/icon/quality.png",        title: "Quality First",   desc: "Strict quality checks on every product for performance and durability." },
-  { icon: "/icon/innovation.png",     title: "Innovation",      desc: "Always updating our catalog with the latest RTX GPUs and next-gen processors." },
-  { icon: "/icon/customer-focus.png", title: "Customer Focused",desc: "Fast support, easy returns, and honest advice — customers always come first." },
+  {
+    icon: "https://ik.imagekit.io/wn1nobtx5/laptop/quality%20(1).png",
+    title: "Our Mission",
+    desc: "Making premium laptops accessible to everyone students, creators, and gamers.",
+    credit: { label: "Mission icons created by Magnific - Flaticon", href: "https://www.flaticon.com/free-icons/mission" },
+  },
+  {
+    icon: "https://ik.imagekit.io/wn1nobtx5/laptop/target%20(1).png",
+    title: "Quality First",
+    desc: "Strict quality checks on every product for performance and durability.",
+    credit: { label: "Number one icons created by gungyoga04 - Flaticon", href: "https://www.flaticon.com/free-icons/number-one" },
+  },
+  {
+    icon: "https://ik.imagekit.io/wn1nobtx5/laptop/project-management.png",
+    title: "Innovation",
+    desc: "Always updating our catalog with the latest RTX GPUs and next-gen processors.",
+    credit: { label: "Project icons created by dDara - Flaticon", href: "https://www.flaticon.com/free-icons/project" },
+  },
+  {
+    icon: "https://ik.imagekit.io/wn1nobtx5/laptop/customer-focus%20(1).png",
+    title: "Customer Focused",
+    desc: "Fast support, easy returns, and honest advice  customers always come first.",
+    credit: { label: "Customer focus icons created by Canticons - Flaticon", href: "https://www.flaticon.com/free-icons/customer-focus" },
+  },
 ];
 
 const floatingLaptops = [
@@ -107,7 +127,7 @@ export default function AboutPage() {
             </h2>
             <div className="mx-auto mt-3 h-1 w-12 rounded-full bg-blue-500" />
             <p className="mt-4 max-w-sm sm:max-w-md text-xs sm:text-sm text-gray-500 leading-relaxed">
-              Founded in 2020, Computer Store started as a passion project by tech enthusiasts who wanted to make finding the right laptop simple and affordable. Today we serve thousands of customers — from students to pro gamers — with hand-picked products from the world's top brands.
+              Founded in 2020, Computer Store started as a passion project by tech enthusiasts who wanted to make finding the right laptop simple and affordable. Today we serve thousands of customers — from students to pro gamers — with hand-picked products from the world&apos;s top brands.
             </p>
           </ScrollReveal>
         </div>
@@ -126,14 +146,24 @@ export default function AboutPage() {
             </div>
           </ScrollReveal>
 
-          <div className="mt-8 sm:mt-12 grid gap-8 sm:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 sm:mt-12 grid gap-8 sm:gap-10 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {values.map((v, i) => (
               <ScrollReveal key={v.title} delay={i + 1}>
                 <div className="flex flex-col items-center text-center">
                   {/* Icon — no box, just the image */}
-                  <Image src={v.icon} alt={v.title} width={52} height={52} className="object-contain" />
+                  <a href={v.credit.href} target="_blank" rel="noreferrer" aria-label={v.credit.label}>
+                    <Image src={v.icon} alt={v.title} width={52} height={52} className="object-contain" />
+                  </a>
                   <h3 className="mt-4 text-base sm:text-lg font-extrabold text-gray-900">{v.title}</h3>
-                  <p className="mt-2 text-xs sm:text-sm leading-relaxed text-gray-500 max-w-[240px] sm:max-w-[180px]">{v.desc}</p>
+                  <p className="mt-2 text-xs sm:text-sm leading-relaxed text-gray-500 max-w-[280px] sm:max-w-[240px] md:max-w-[200px] lg:max-w-[180px]">{v.desc}</p>
+                  <a
+                    href={v.credit.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 text-[10px] leading-snug text-gray-400 underline decoration-gray-300 underline-offset-2 hover:text-blue-600"
+                  >
+                    {v.credit.label}
+                  </a>
                 </div>
               </ScrollReveal>
             ))}

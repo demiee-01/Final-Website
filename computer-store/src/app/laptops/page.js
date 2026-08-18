@@ -191,7 +191,7 @@ function LaptopsContent() {
       <main className="min-h-screen bg-gray-50 px-4 sm:px-6 py-10">
         <div className="mx-auto max-w-7xl flex gap-8">
           <div className="hidden w-60 shrink-0 lg:block"><div className="h-96 animate-pulse rounded-2xl bg-gray-200" /></div>
-          <div className="flex-1 grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-3">
+          <div className="flex-1 grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3">
             {[1,2,3,4,5].map(n => <div key={n} className="h-64 sm:h-80 animate-pulse rounded-2xl bg-gray-200" />)}
           </div>
         </div>
@@ -218,7 +218,7 @@ function LaptopsContent() {
         <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
           {/* Search input */}
           <div className="relative w-full max-w-sm">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></span>
             <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search laptops..." className="w-full rounded-xl border border-gray-200 bg-white py-3 pl-11 pr-10 text-sm shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition" />
             {search && <button onClick={() => setSearch("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">✕</button>}
           </div>
@@ -256,33 +256,33 @@ function LaptopsContent() {
           <div className="flex-1">
             {filtered.length === 0 ? (
               <div className="mt-10 text-center">
-                <p className="text-4xl">🔍</p>
+                <p className="text-4xl"></p>
                 <p className="mt-3 text-lg font-semibold text-gray-700">No laptops found</p>
                 <button onClick={clearFilters} className="mt-4 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Clear Filters</button>
               </div>
             ) : (
-              <section className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              <section className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {filtered.map((laptop, index) => (
                   <ScrollReveal key={laptop.id} delay={(index % 3) + 1}>
                   <article className="flex flex-col overflow-hidden rounded-xl sm:rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow">
                     {/* Image */}
-                    <div className="flex h-32 sm:h-64 w-full items-center justify-center bg-white p-2 sm:p-4">
+                    <div className="flex h-32 sm:h-48 md:h-56 lg:h-64 w-full items-center justify-center bg-white p-2 sm:p-4">
                       <img 
                         src={laptop.image} 
                         alt={laptop.name} 
-                        className="h-24 sm:h-52 w-24 sm:w-52 object-contain"
+                        className="h-24 sm:h-40 md:h-48 lg:h-52 w-24 sm:w-40 md:w-48 lg:w-52 object-contain"
                       />
                     </div>
                     {/* Info */}
-                    <div className="flex flex-1 flex-col p-2 sm:p-5">
+                    <div className="flex flex-1 flex-col p-2 sm:p-4 md:p-5">
                       <span className="text-[9px] sm:text-xs font-semibold uppercase tracking-wide text-blue-600">{laptop.brand}</span>
-                      <h2 className="mt-1 text-xs sm:text-lg font-bold text-gray-900 line-clamp-2 min-h-[2rem] sm:min-h-[3rem]">{laptop.name}</h2>
+                      <h2 className="mt-1 text-xs sm:text-base md:text-lg font-bold text-gray-900 line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem]">{laptop.name}</h2>
                       {/* Spec Sheet */}
                       <SpecSheet laptop={laptop} className="mt-2 sm:mt-3" />
                       {/* Price */}
-                      <p className="mt-2 sm:mt-4 text-base sm:text-2xl font-extrabold text-gray-900">${laptop.price.toLocaleString()}</p>
+                      <p className="mt-2 sm:mt-3 md:mt-4 text-base sm:text-xl md:text-2xl font-extrabold text-gray-900">${laptop.price.toLocaleString()}</p>
                       {/* Buttons */}
-                      <div className="mt-2 sm:mt-4 grid grid-cols-2 gap-1.5 sm:gap-2 md:gap-3">
+                      <div className="mt-2 sm:mt-3 md:mt-4 grid grid-cols-2 gap-1.5 sm:gap-2">
                         <button onClick={() => handleAddToCart(laptop)} className={`rounded-lg sm:rounded-xl py-2 sm:py-2.5 text-[10px] sm:text-xs md:text-sm font-semibold transition-colors ${added === laptop.id ? "bg-green-500 text-white" : "border border-blue-600 text-blue-600 hover:bg-blue-50"}`}>
                           {added === laptop.id ? "✓ Added!" : "Add to Cart"}
                         </button>

@@ -280,32 +280,32 @@ export default function HomePage() {
 
           {/* Skeleton loading — shown while data is being fetched */}
           {laptops.length === 0 ? (
-            <div className="mt-10 grid gap-3 grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
+            <div className="mt-10 grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4">
               {[1, 2, 3, 4].map((n) => (
-                <div key={n} className="h-64 sm:h-72 animate-pulse rounded-2xl bg-gray-100" />
+                <div key={n} className="h-64 sm:h-72 md:h-80 animate-pulse rounded-2xl bg-gray-100" />
               ))}
             </div>
           ) : (
-            /* Laptop Cards Grid — 2 per row on mobile, 4 on tablet, 4 on desktop */
-            <div className="mt-10 grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
+            /* Laptop Cards Grid — 2 per row on mobile, 3 on tablet/iPad, 4 on desktop */
+            <div className="mt-10 grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4">
               {laptops.map((laptop, index) => (
                 <ScrollReveal key={laptop.id} delay={(index % 4) + 1}>
                 <article
                   className="flex flex-col overflow-hidden rounded-xl sm:rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow"
                 >
                   {/* Laptop Image — responsive sizing */}
-                  <div className="flex h-32 sm:h-56 w-full items-center justify-center bg-white p-2 sm:p-3">
+                  <div className="flex h-32 sm:h-48 md:h-52 lg:h-56 w-full items-center justify-center bg-white p-2 sm:p-3">
                     <img 
                       src={laptop.image} 
                       alt={laptop.name} 
-                      className="h-24 sm:h-44 w-24 sm:w-44 object-contain"
+                      className="h-24 sm:h-40 md:h-44 lg:h-44 w-24 sm:w-40 md:w-44 lg:w-44 object-contain"
                     />
                   </div>
 
                   {/* Laptop Info */}
-                  <div className="flex flex-1 flex-col p-2 sm:p-5">
+                  <div className="flex flex-1 flex-col p-2 sm:p-4 md:p-5">
                     <span className="text-[9px] sm:text-xs font-semibold uppercase tracking-wide text-blue-600">{laptop.brand}</span>
-                    <h3 className="mt-1 text-xs sm:text-lg font-bold text-gray-900 line-clamp-2 min-h-[2rem] sm:min-h-[3rem]">{laptop.name}</h3>
+                    <h3 className="mt-1 text-xs sm:text-base md:text-lg font-bold text-gray-900 line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem]">{laptop.name}</h3>
 
                     {/* Spec Sheet - hide some on mobile */}
                     <div className="mt-2 sm:mt-3">
@@ -313,10 +313,10 @@ export default function HomePage() {
                     </div>
 
                     {/* Price */}
-                    <p className="mt-2 sm:mt-4 text-base sm:text-2xl font-extrabold text-gray-900">${laptop.price.toLocaleString()}</p>
+                    <p className="mt-2 sm:mt-3 md:mt-4 text-base sm:text-xl md:text-2xl font-extrabold text-gray-900">${laptop.price.toLocaleString()}</p>
 
                     {/* Action Buttons */}
-                    <div className="mt-2 sm:mt-4 grid grid-cols-2 gap-1.5 sm:gap-2 md:gap-3">
+                    <div className="mt-2 sm:mt-3 md:mt-4 grid grid-cols-2 gap-1.5 sm:gap-2">
                       {/* Add to Cart — turns green briefly when clicked */}
                       <button
                         onClick={() => handleAddToCart(laptop)}

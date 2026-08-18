@@ -40,3 +40,36 @@ export async function GET() {
     );
   }
 }
+
+// DELETE customer and all their orders
+export async function DELETE(request) {
+  try {
+    const { email } = await request.json();
+
+    if (!email) {
+      return NextResponse.json(
+        { success: false, message: "Email is required" },
+        { status: 400 }
+      );
+    }
+
+    // Delete all orders for this customer
+    const { error: ordersError } = await supabaseAdmin
+      .from("orders")
+      .delete()
+      .eq("customer_email", email);
+
+    if (ordersError) throw ordersError;
+
+    return NextResponse.json({
+      success: true,
+      message: "Customer and all their orders deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting customer:", error);
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 }
+    );
+  }
+}

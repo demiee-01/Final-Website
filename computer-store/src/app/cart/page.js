@@ -331,7 +331,7 @@ export default function CartPage() {
               </div>
               <Link href="/laptops" className="text-sm font-semibold text-blue-600 hover:underline">View all →</Link>
             </div>
-            <div className="mt-8 grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-3">
+            <div className="mt-8 grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4">
               {suggestions.map((laptop) => (
                 <AddLaptopCard key={laptop.id} laptop={laptop} />
               ))}

@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         hostname: 'ik.imagekit.io',
         pathname: '/wn1nobtx5/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn-icons-png.flaticon.com',
+      },
     ],
     unoptimized: false,
   },
